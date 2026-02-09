@@ -2,12 +2,18 @@
 import {
   Box,
   Grid,
+  MenuItem,
   Typography,
   Card,
   Divider,
+  Checkbox,
+  FormControlLabel,
   Button,
   Modal,
+  Autocomplete,
   CircularProgress,
+  IconButton,
+  Link,
 } from "@mui/material";
 import React, { useState, useEffect, useRef } from "react";
 import CustomTextField from "../../../@core/components/mui/TextField";
@@ -18,11 +24,11 @@ import Alert from "@mui/material/Alert";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { fetchDateSingle } from "../../../lib/getAPI/apiFetch";
+import moment from "moment";
 import AlertDialog from "../container/AlertDialog";
 import CustomAutoComplete from "./CustomAutoComplete";
 
-function UserCreate({ route_back, userType, userNames }) {
-  const [isBoardMember, setIsBoardMember] = useState(false);
+function UserCreate({ Header, route_back, userType, userNames }) {
   const {
     control,
     handleSubmit,
@@ -40,21 +46,87 @@ function UserCreate({ route_back, userType, userNames }) {
   };
 
   const token = Cookies.get("token");
+
+  const checkScanner = async () => {
+    if ("usb" in navigator) {
+      try {
+        const devices = await navigator.usb.getDevices();
+        const scanner = devices.some((device) => {
+          return device.productName;
+        });
+        setIsScannerConnected(scanner);
+      } catch (error) {
+        setError({ status: "error", message: error.message });
+      }
+    } else {
+      setError({
+        status: "error",
+        message: "WebUSB API is not supported in this browser.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleConnect = () => checkScanner();
+    const handleDisconnect = () => checkScanner();
+    checkScanner();
+    navigator.usb?.addEventListener("connect", handleConnect);
+    navigator.usb?.addEventListener("disconnect", handleDisconnect);
+
+    return () => {
+      navigator.usb?.removeEventListener("connect", handleConnect);
+      navigator.usb?.removeEventListener("disconnect", handleDisconnect);
+    };
+  }, []);
+
   const [stateMaster, setstateMaster] = useState([]);
+
+  const [aadhaarNumber, setaadhaarNumber] = useState("");
   const [userTypeID, setuserTypeID] = useState(userType);
   const [userTypeName, setuserTypeName] = useState(userNames);
+  const [groupName, setgroupName] = useState("");
   const [firstName, setfirstName] = useState("");
   const [lastName, setlastName] = useState("");
   const [emailID, setemailID] = useState("");
   const [mobileNumber, setmobileNumber] = useState("");
+  const [dateOfJoinging, setdateOfJoinging] = useState(
+    moment(new Date()).format("YYYY-MM-DD"),
+  );
   const [addressOne, setaddressOne] = useState("");
   const [addressTwo, setaddressTwo] = useState("");
-  const [groupID, setgroupID] = useState("");
-  const [groupName, setgroupName] = useState("");
   const [cityID, setcityID] = useState("MzcxNDczMzA5ODEzMDQyNDQ=");
   const [cityName, setcityName] = useState("Erode");
   const [stateID, setstateID] = useState("MzU5MzgwODkwMDY1MjI3NQ==");
   const [stateName, setstateName] = useState("Tamil Nadu");
+  const [accountNumber, setaccountNumber] = useState("");
+  const [ifscCode, setifscCode] = useState("");
+  const [bankID, setbankID] = useState("");
+  const [bankName, setbankName] = useState("");
+  const [isScannerConnected, setIsScannerConnected] = useState(false);
+
+  const [groupOptions, setGroupOptions] = useState([]);
+
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+
+  const [selectedGroupName, setSelectedGroupName] = useState("");
+  const handleGroupNameChange = (newValue) => {
+    setselectedGroup(newValue.data_uniq_id);
+    setselectedGroupName(newValue.group_type);
+  };
+
+  const HandleChangeAccountNumber = (event) => {
+    const regex = /^\d{0,100}$/;
+    if (regex.test(event.target.value)) {
+      setaccountNumber(event.target.value);
+    }
+  };
+
+  const HandleChangeADHAARNumber = (event) => {
+    const regex = /^\d{0,12}$/;
+    if (regex.test(event.target.value)) {
+      setaadhaarNumber(event.target.value);
+    }
+  };
 
   const HandleChangeMobileNumber = (event) => {
     const regex = /^\d{0,10}$/;
@@ -63,10 +135,10 @@ function UserCreate({ route_back, userType, userNames }) {
     }
   };
 
-  const [GroupMaster, setGroupMaster] = useState([]);
+  const [groupMaster, setgroupMaster] = useState([]);
 
   const HandleGroupMaster = () => {
-    fetchDateSingle("master/group/get", setGroupMaster, {
+    fetchDateSingle("master/group/get", setgroupMaster, {
       access_token: token,
       search_input: "",
       from_date: "",
@@ -77,12 +149,12 @@ function UserCreate({ route_back, userType, userNames }) {
   };
 
   const ChangeGroupMaster = (event, value) => {
-    if (value != null) {
-      setgroupID(value.data_uniq_id);
-      setgroupName(value.group_type);
+    if (value) {
+      setSelectedGroupId(value.data_uniq_id);
+      setSelectedGroupName(value.group_type);
     } else {
-      setgroupID("");
-      setgroupName("");
+      setSelectedGroupId("");
+      setSelectedGroupName("");
     }
   };
 
@@ -133,14 +205,42 @@ function UserCreate({ route_back, userType, userNames }) {
     }
   };
 
+  const [bankMaster, setbankMaster] = useState([]);
 
+  const HandleBankMaster = () => {
+    fetchDateSingle("master/bankmaster/get", setbankMaster, {
+      access_token: token,
+      search_input: "",
+      from_date: "",
+      to_date: "",
+      active_status: 1,
+      items_per_page: 1000,
+    });
+  };
 
- const [lastNumberData, setlastNumberData] = useState("");
+  const getGroupList = (value) => {
+    axiosGet
+      .get(
+        `master/group/get?access_token=${token}&active_status=1&items_per_page=10000&ref_state_id=${value}`,
+      )
+      .then((response) => {
+        setGroupOptions(response.data.data || []);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  useEffect(() => {
+    getGroupList();
+  }, []);
+
+  const [lastNumberData, setlastNumberData] = useState("");
 
   const HandleLastNumber = () => {
     try {
       axiosGet
-        .get(`get_new_user_id?access_token=${token}`)
+        .get(`get_new_user_id?access_token=${token}&user_type=${userTypeID}`)
         .then((response) => {
           setlastNumberData(response.data.new_user_id);
         });
@@ -149,141 +249,51 @@ function UserCreate({ route_back, userType, userNames }) {
     }
   };
 
+  const ChangeBankMaster = (event, value) => {
+    if (value != null) {
+      setbankID(value.data_uniq_id);
+      setbankName(value.bank_name);
+    } else {
+      setbankID("");
+      setbankName("");
+    }
+  };
+
   useEffect(() => {
     HandleGroupMaster();
     HandleCityMaster("MzU5MzgwODkwMDY1MjI3NQ==");
+    HandleBankMaster();
     HandleStateMaster();
     HandleLastNumber();
   }, [userTypeID]);
 
-  const [imagesOne, setimagesOne] = useState("");
-  const [imagesTwo, setimagesTwo] = useState("");
-
-  const fileInputRef = useRef(null);
-
-  const maxImages = 5;
-  const [base64Images, setBase64Images] = useState([]);
-  const [deleteImages, setDeleteImages] = useState([]);
-
-  const allowedFormats = ["pdf", "jpeg", "jpg"];
-
-  const handleFileChange = (event) => {
-    setError({ status: "", message: "" });
-
-    const files = Array.from(event.target.files);
-    const maxSize = 5 * 1024 * 1024;
-    const validFiles = [];
-
-    for (const file of files) {
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-
-      if (!allowedFormats.includes(fileExtension)) {
-        setError({ status: "error", message: "Invalid file format" });
-        event.target.value = "";
-        return;
-      }
-
-      if (file.size > maxSize) {
-        setError({ status: "error", message: "Maximum File Size is 5MB." });
-        event.target.value = "";
-        return;
-      }
-
-      if (base64Images?.length >= 2) {
-        setError({ status: "error", message: "Maximum of 2 files allowed." });
-        event.target.value = "";
-        return;
-      }
-      validFiles.push(file);
-    }
-
-    const images = [];
-    const processFile = (index) => {
-      if (index >= validFiles.length) {
-        setBase64Images((prevBase64Images) =>
-          [...prevBase64Images, ...images].slice(0, maxImages)
-        );
-        return;
-      }
-
-      const file = validFiles[index];
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const base64String = e.target.result.split(",")[1];
-        images.push({
-          image_name: file.name,
-          document_doc: base64String,
-          existing_image_path: "",
-        });
-        processFile(index + 1);
-      };
-
-      reader.readAsDataURL(file);
-    };
-
-    processFile(0);
-  };
-
-  const handleRemoveImage = (index) => {
-    setBase64Images((prevImages) => prevImages.filter((_, i) => i !== index));
-    const imageId = base64Images[index];
-    if (imageId.data_uniq_id) {
-      setDeleteImages([...deleteImages, imageId]);
-    }
-  };
-
   const [isLoading, setIsLoading] = useState(false);
-
-  const scanDocument = async () => {
-    setIsLoading(true);
-    try {
-      axiosGet
-        .get("scan_document")
-        .then((response) => {
-
-          if (response.data.action === "success") {
-            const data = response?.data?.data;
-            if (
-              imagesOne === "" ||
-              imagesOne === NaN ||
-              imagesOne === undefined
-            ) {
-              setimagesOne(data);
-            } else {
-              setimagesTwo(data);
-            }
-            setIsLoading(false);
-          } else {
-            setError({ status: "error", message: "Scanner Error" });
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          setIsLoading(false);
-        });
-    } catch (error) {
-      setIsLoading(false);
-    }
-  };
 
   const handleSignIn = (e) => {
     e.preventDefault();
     setIsLoading(true);
     const jsonStructure = {
       access_token: token,
+      user_type: userTypeID,
+      user_type_name: userTypeName,
       first_name: firstName,
       last_name: lastName,
-      email_id: emailID,
       mobile_number: mobileNumber,
+      data_of_joining: dateOfJoinging,
       address_1: addressOne,
       address_2: addressTwo,
-      group_id: groupID,
-      group_name: groupName,
       district_id: cityID,
       district_name: cityName,
       state_id: stateID,
       state_name: stateName,
+      aadhaar_number: aadhaarNumber,
+      group_id: selectedGroupId,
+      group_name: selectedGroupName,
+      email_id: emailID,
+      account_number: accountNumber,
+      ifsc_code: ifscCode,
+      bank_id: bankID,
+      bank_name: bankName,
     };
     try {
       axiosPost
@@ -322,9 +332,8 @@ function UserCreate({ route_back, userType, userNames }) {
   };
 
   const onClickCancel = () => {
-    if (userTypeName === "Trader" && isBoardMember === false) {
-      router.push("/all-traders");
-    } else {
+    Cookies.remove("data_uniq_id");
+    if (userTypeName === "Trader") {
       router.push(route_back);
     }
   };
@@ -343,48 +352,58 @@ function UserCreate({ route_back, userType, userNames }) {
         Add {userTypeName}
       </Typography>
       <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
-        1. Personal Details
+        1. Account Details
       </Typography>
 
       <form onSubmit={handleSignIn}>
-        <Grid container spacing={6}>
-          <Grid item xs={12} sm={4}>
+        {/* <Grid item xs={12} sm={4}>
             <Controller
-              name="area"
+              name="userType"
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
                 <>
-                  {renderLabel("Group", true)}
-                  <CustomAutoComplete
-                    id="select-status"
-                    label="Group"
-                    error={!!errorsMessage.group_id}
+                  {renderLabel("User Type", true)}
+                  <CustomTextField
+                    id="userType"
+                    createdisabled={true}
+                    error={!!errorsMessage.user_type}
                     helperText={
-                      errorsMessage.group_id ? errorsMessage.group_id : ""
+                      errorsMessage.user_type ? errorsMessage.user_type : ""
                     }
-                    value={groupName}
-                    onChange={(e, v) => {
-                      ChangeGroupMaster(e, v);
-                      if (errorsMessage.group_id) {
-                        seterrorsMessage((prev) => ({
-                          ...prev,
-                          group_id: "",
-                        }));
-                      }
-                    }}
-                    options={GroupMaster}
-                    option_label={(option) =>
-                      typeof option === "string"
-                        ? option
-                        : option.group_type || ""
+                    value={userTypeName}
+                  />
+                </>
+              )}
+            />
+          </Grid> */}
+
+        {/* Row 1: Group | User ID */}
+        <Grid container spacing={6}>
+          <Grid item xs={12} sm={6}>
+            <Controller
+              name="Group"
+              control={control}
+              render={() => (
+                <>
+                  {renderLabel("Group", false)}
+                  <CustomAutoComplete
+                    label="Group"
+                    value={
+                      groupOptions.find(
+                        (g) => g.data_uniq_id === selectedGroupId,
+                      ) || null
                     }
+                    onChange={ChangeGroupMaster}
+                    options={groupOptions}
+                    option_label={(option) => option.group_type || ""}
                   />
                 </>
               )}
             />
           </Grid>
-            <Grid item xs={12} sm={4}>
+
+          <Grid item xs={12} sm={6}>
             <Controller
               name="userID"
               control={control}
@@ -396,27 +415,27 @@ function UserCreate({ route_back, userType, userNames }) {
                     {...field}
                     fullWidth
                     disabled
-                    variant="outlined"
                     value={lastNumberData}
                     placeholder={lastNumberData}
-                    // sx={{ mb: 5 }}
                   />
                 </>
               )}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+        </Grid>
+
+        {/* Row 2: First Name | Last Name */}
+        <Grid container spacing={6} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={6}>
             <Controller
               name="firstName"
               control={control}
               rules={{ required: true }}
-              render={({ field }) => (
+              render={() => (
                 <>
                   {renderLabel("First Name", true)}
                   <CustomTextField
-                    {...field}
                     fullWidth
-                    variant="outlined"
                     placeholder="First Name"
                     value={firstName}
                     onChange={(e) => {
@@ -429,10 +448,56 @@ function UserCreate({ route_back, userType, userNames }) {
                       }
                     }}
                     error={!!errorsMessage.first_name}
-                    helperText={
-                      errorsMessage.first_name ? errorsMessage.first_name : ""
-                    }
-                    // sx={{ mb: 5 }}
+                    helperText={errorsMessage.first_name || ""}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Controller
+              name="lastName"
+              control={control}
+              render={() => (
+                <>
+                  {renderLabel("Last Name", false)}
+                  <CustomTextField
+                    fullWidth
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setlastName(e.target.value)}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Row 3: Aadhaar | Email | Phone */}
+        <Grid container spacing={6} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="aadhaar_number"
+              control={control}
+              render={() => (
+                <>
+                  {renderLabel("Aadhaar Number", true)}
+                  <CustomTextField
+                    fullWidth
+                    placeholder="Aadhaar Number"
+                    value={aadhaarNumber}
+                    onChange={(e) => {
+                      HandleChangeADHAARNumber(e);
+                      if (errorsMessage.aadhaar_number) {
+                        seterrorsMessage((prev) => ({
+                          ...prev,
+                          aadhaar_number: "",
+                        }));
+                      }
+                    }}
+                    error={!!errorsMessage.aadhaar_number}
+                    helperText={errorsMessage.aadhaar_number || ""}
                   />
                 </>
               )}
@@ -441,39 +506,15 @@ function UserCreate({ route_back, userType, userNames }) {
 
           <Grid item xs={12} sm={4}>
             <Controller
-              name="lastName"
-              control={control}
-              render={({ field }) => (
-                <>
-                  {renderLabel("Last Name", false)}
-                  <CustomTextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    value={lastName}
-                    onChange={(e) => setlastName(e.target.value)}
-                    placeholder="Last Name"
-                  />
-                </>
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Controller
               name="emailID"
               control={control}
-              render={({ field }) => (
+              render={() => (
                 <>
                   {renderLabel("Email ID", false)}
                   <CustomTextField
-                    {...field}
                     fullWidth
-                    variant="outlined"
+                    placeholder="Email ID"
                     value={emailID}
-                    error={!!errorsMessage.email_id}
-                    helperText={
-                      errorsMessage.email_id ? errorsMessage.email_id : ""
-                    }
                     onChange={(e) => {
                       setemailID(e.target.value);
                       if (errorsMessage.email_id) {
@@ -483,25 +524,25 @@ function UserCreate({ route_back, userType, userNames }) {
                         }));
                       }
                     }}
-                    placeholder="Email ID"
-                    sx={{ mb: 5 }}
+                    error={!!errorsMessage.email_id}
+                    helperText={errorsMessage.email_id || ""}
                   />
                 </>
               )}
             />
           </Grid>
-            <Grid item xs={12} sm={4}>
+
+          <Grid item xs={12} sm={4}>
             <Controller
               name="phoneNumber"
               control={control}
-              // rules={{ required: false }}
-              render={({ field }) => (
+              rules={{ required: true }}
+              render={() => (
                 <>
                   {renderLabel("Phone Number", true)}
                   <CustomTextField
-                    {...field}
                     fullWidth
-                    variant="outlined"
+                    placeholder="Phone Number"
                     value={mobileNumber}
                     onChange={(e) => {
                       HandleChangeMobileNumber(e);
@@ -512,22 +553,14 @@ function UserCreate({ route_back, userType, userNames }) {
                         }));
                       }
                     }}
-                    placeholder="Phone Number"
                     error={!!errorsMessage.mobile_number}
-                    helperText={
-                      errorsMessage.mobile_number
-                        ? errorsMessage.mobile_number
-                        : ""
-                    }
-                    sx={{ mb:6  }}
+                    helperText={errorsMessage.mobile_number || ""}
                   />
                 </>
               )}
             />
           </Grid>
         </Grid>
-
-       
 
         <Divider sx={{ marginY: 2, mb: 5 }} />
 
@@ -536,7 +569,7 @@ function UserCreate({ route_back, userType, userNames }) {
         </Typography>
 
         <Grid container spacing={6}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Controller
               name="address1"
               control={control}
@@ -570,7 +603,7 @@ function UserCreate({ route_back, userType, userNames }) {
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Controller
               name="address2"
               control={control}
@@ -663,6 +696,79 @@ function UserCreate({ route_back, userType, userNames }) {
         </Grid>
 
         <Divider sx={{ marginY: 2, mb: 5 }} />
+
+        <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
+          3. Bank Details
+        </Typography>
+
+        <Grid container spacing={6}>
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="accountNumber"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Account Number", false)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Account Number"
+                    value={accountNumber}
+                    onChange={HandleChangeAccountNumber}
+                    // sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="ifsc"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("IFSC", false)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="IFSC"
+                    value={ifscCode}
+                    onChange={(event) => setifscCode(event.target.value)}
+                    // sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="bankName"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Name of Bank", false)}
+                  <CustomAutoComplete
+                    id="select-status"
+                    label="Name of Bank"
+                    value={bankName}
+                    onChange={ChangeBankMaster}
+                    options={bankMaster}
+                    option_label={(option) =>
+                      typeof option === "string"
+                        ? option
+                        : option.bank_name || ""
+                    }
+                    // sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+        </Grid>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 5 }}>
           <Button onClick={onCancel} variant="outlined" sx={{ mr: 2 }}>

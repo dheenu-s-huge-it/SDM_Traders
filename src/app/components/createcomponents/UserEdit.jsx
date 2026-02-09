@@ -2,9 +2,12 @@
 import {
   Box,
   Grid,
+  MenuItem,
   Typography,
   Card,
   Divider,
+  Checkbox,
+  FormControlLabel,
   Button,
   Modal,
   CircularProgress,
@@ -18,10 +21,15 @@ import Alert from "@mui/material/Alert";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { fetchDateSingle } from "../../../lib/getAPI/apiFetch";
+import moment from "moment";
 import AlertDialog from "../container/AlertDialog";
 import CustomAutoComplete from "./CustomAutoComplete";
+import CustomAutoCompleteSelect from "./CustomAutoCompleteSelect";
+import FileDisplay from "./ScannedDocument";
+import { InputAdornment } from "@mui/material";
+import { API_ENDPOINT } from "../../../lib/config";
 
-function HandleGroupMaster({ Header, route_back, userType, userNames }) {
+function UserEdit({ Header, route_back, userType, userNames }) {
   const [isBoardMember, setIsBoardMember] = useState(false);
   const USER_ID = Cookies.get("data_uniq_id");
   const {
@@ -42,31 +50,85 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
 
   const token = Cookies.get("token");
 
-  const handleBoardMemberChange = (event) => {
-    setIsBoardMember(event.target.checked);
-  };
-
-  const userTypeMaster = [
-    { id: 2, label: "Trader" },
-    { id: 3, label: "Trader" },
-    { id: 4, label: "Employee" },
-  ];
-
   const [stateMaster, setstateMaster] = useState([]);
+  const [aadhaarNumber, setaadhaarNumber] = useState("");
   const [userTypeID, setuserTypeID] = useState(userType);
   const [userTypeName, setuserTypeName] = useState(userNames);
+  const [groupName, setGroupName] = useState("");
   const [firstName, setfirstName] = useState("");
   const [lastName, setlastName] = useState("");
   const [emailID, setemailID] = useState("");
   const [mobileNumber, setmobileNumber] = useState("");
+  const [dateOfJoinging, setdateOfJoinging] = useState(
+    moment(new Date()).format("YYYY-MM-DD"),
+  );
+
   const [addressOne, setaddressOne] = useState("");
   const [addressTwo, setaddressTwo] = useState("");
-  const [GroupID, setGroupID] = useState("");
-  const [GroupName, setGroupName] = useState("");
   const [cityID, setcityID] = useState("MzcxNDczMzA5ODEzMDQyNDQ=");
   const [cityName, setcityName] = useState("Erode");
   const [stateID, setstateID] = useState("MzU5MzgwODkwMDY1MjI3NQ==");
   const [stateName, setstateName] = useState("Tamil Nadu");
+  const [accountNumber, setaccountNumber] = useState("");
+  const [ifscCode, setifscCode] = useState("");
+  const [bankID, setbankID] = useState("");
+  const [bankName, setbankName] = useState("");
+  const [isScannerConnected, setIsScannerConnected] = useState(false);
+
+  const [groupOptions, setGroupOptions] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+
+  const [selectedGroupName, setSelectedGroupName] = useState("");
+  const handleGroupNameChange = (newValue) => {
+    setselectedGroup(newValue.data_uniq_id);
+    setselectedGroupName(newValue.group_type);
+};
+
+  const checkScanner = async () => {
+    if ("usb" in navigator) {
+      try {
+        const devices = await navigator.usb.getDevices();
+        const scanner = devices.some((device) => {
+          return device.productName;
+        });
+        setIsScannerConnected(scanner);
+      } catch (error) {
+        setError({ status: "error", message: error.message });
+      }
+    } else {
+      setError({
+        status: "error",
+        message: "WebUSB API is not supported in this browser.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleConnect = () => checkScanner();
+    const handleDisconnect = () => checkScanner();
+    checkScanner();
+    navigator.usb?.addEventListener("connect", handleConnect);
+    navigator.usb?.addEventListener("disconnect", handleDisconnect);
+
+    return () => {
+      navigator.usb?.removeEventListener("connect", handleConnect);
+      navigator.usb?.removeEventListener("disconnect", handleDisconnect);
+    };
+  }, []);
+
+  const HandleChangeAccountNumber = (event) => {
+    const regex = /^\d{0,100}$/;
+    if (regex.test(event.target.value)) {
+      setaccountNumber(event.target.value);
+    }
+  };
+
+  const HandleChangeADHAARNumber = (event) => {
+    const regex = /^\d{0,12}$/;
+    if (regex.test(event.target.value)) {
+      setaadhaarNumber(event.target.value);
+    }
+  };
 
   const HandleChangeMobileNumber = (event) => {
     const regex = /^\d{0,10}$/;
@@ -75,28 +137,34 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
     }
   };
 
-  const [GroupMaster, setGroupMaster] = useState([]);
-
-  const HandleGroupMaster = () => {
-    fetchDateSingle("master/group/get", setGroupMaster, {
-      access_token: token,
-      search_input: "",
-      from_date: "",
-      to_date: "",
-      active_status: 1,
-      items_per_page: 1000,
-    });
+  const handleChangeDateofJoin = (event) => {
+    const formattedDate = moment(event.target.value).format("YYYY-MM-DD");
+    setdateOfJoinging(formattedDate);
   };
+
+  // const ChangeUserType = (event, value) => {
+  //   if (value != null) {
+  //     setuserTypeID(value.id);
+  //     setuserTypeName(value.label);
+  //     seterrorsMessage([]);
+  //   } else {
+  //     setuserTypeID(userType);
+  //     setuserTypeName(userNames);
+  //     seterrorsMessage([]);
+  //   }
+  // };
+
 
   const ChangeGroupMaster = (event, value) => {
-    if (value != null) {
-      setGroupID(value.data_uniq_id);
-      setGroupName(value.group_type);
+    if (value) {
+      setSelectedGroupId(value.data_uniq_id);
+      setSelectedGroupName(value.group_type);
     } else {
-      setGroupID("");
-      setGroupName("");
+      setSelectedGroupId("");
+      setSelectedGroupName("");
     }
   };
+
 
   const [cityMaster, setcityMaster] = useState([]);
 
@@ -145,6 +213,38 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
     }
   };
 
+  const [bankMaster, setbankMaster] = useState([]);
+
+  const HandleBankMaster = () => {
+    fetchDateSingle("master/bankmaster/get", setbankMaster, {
+      access_token: token,
+      search_input: "",
+      from_date: "",
+      to_date: "",
+      active_status: 1,
+      items_per_page: 1000,
+    });
+  };
+
+  const getGroupList = (value) => {
+    axiosGet
+      .get(
+        `master/group/get?access_token=${token}&active_status=1&items_per_page=10000&ref_state_id=${value}`,
+      )
+      .then((response) => {
+        setGroupOptions(response.data.data || []);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  useEffect(() => {
+    getGroupList();
+  }, []);
+
+  const [lastNumberData, setlastNumberData] = useState("");
+
   const HandleEditGET = (value) => {
     if (value !== undefined && value !== null) {
       try {
@@ -155,17 +255,25 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
             if (data.length !== 0) {
               setfirstName(data[0]?.first_name);
               setlastName(data[0]?.last_name);
-              setemailID(data[0]?.email_id);
               setmobileNumber(data[0]?.mobile_number);
+              setemailID(data[0]?.email_id);
+              setdateOfJoinging(data[0]?.data_of_joining);
               setaddressOne(data[0]?.address_1);
               setaddressTwo(data[0]?.address_2);
-              setGroupID(data[0]?.group_id);
-              setGroupName(data[0]?.group_name);
               setcityID(data[0]?.district_id);
               setcityName(data[0]?.district_name);
               setstateID(data[0]?.state_id);
               setstateName(data[0]?.state_name);
+              setlastNumberData(data[0]?.user_id);
+              setaadhaarNumber(data[0]?.aadhaar_number);
+              setSelectedGroupId(data[0]?.group_id);
+              setSelectedGroupName(data[0]?.group_name); 
+              setaccountNumber(data[0]?.account_number);
+              setifscCode(data[0]?.ifsc_code);
+              setbankID(data[0]?.bank_id);
+              setbankName(data[0]?.bank_name);
             }
+            console.log("Edit Employee", data);
           });
       } catch (error) {
         throw error;
@@ -173,9 +281,19 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
     }
   };
 
+  const ChangeBankMaster = (event, value) => {
+    if (value != null) {
+      setbankID(value.data_uniq_id);
+      setbankName(value.bank_name);
+    } else {
+      setbankID("");
+      setbankName("");
+    }
+  };
+
   useEffect(() => {
-    HandleGroupMaster();
     HandleCityMaster("MzU5MzgwODkwMDY1MjI3NQ==");
+    HandleBankMaster();
     HandleStateMaster();
     HandleEditGET(USER_ID);
   }, [userTypeID]);
@@ -188,18 +306,26 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
     const jsonStructure = {
       access_token: token,
       data_uniq_id: USER_ID,
+      user_type: userTypeID,
+      user_type_name: userTypeName,
       first_name: firstName,
       last_name: lastName,
-      email_id: emailID,
       mobile_number: mobileNumber,
+      data_of_joining: dateOfJoinging,
       address_1: addressOne,
       address_2: addressTwo,
-      group_id: GroupID,
-      group_name: GroupName,
       district_id: cityID,
       district_name: cityName,
       state_id: stateID,
       state_name: stateName,
+      aadhaar_number: aadhaarNumber,
+      group_id: selectedGroupId,
+      group_name: selectedGroupName || "",
+      email_id: emailID,
+      account_number: accountNumber,
+      ifsc_code: ifscCode,
+      bank_id: bankID,
+      bank_name: bankName,
     };
     try {
       axiosPost
@@ -239,13 +365,7 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
 
   const onClickCancel = () => {
     Cookies.remove("data_uniq_id");
-    if (userTypeName === "Trader" && isBoardMember === false) {
-      router.push("/all-traders");
-    } else if (userTypeName === "Employee" && isBoardMember === false) {
-      router.push("/all-employees");
-    } else if (isBoardMember === true) {
-      router.push("/all-board-members");
-    } else {
+    if (userTypeName === "Trader") {
       router.push(route_back);
     }
   };
@@ -264,47 +384,81 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
         Update {userTypeName}
       </Typography>
       <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
-        1. Personal Details
+        1. Account Details
       </Typography>
 
       <form onSubmit={handleSignIn}>
         <Grid container spacing={6}>
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <Controller
-              name="Group"
+              name="userType"
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
                 <>
-                  {renderLabel("Group", true)}
-                  <CustomAutoComplete
-                    id="select-status"
-                    label="Group"
-                    error={!!errorsMessage.group_id}
+                  {renderLabel("User Type", true)}
+                  <CustomTextField
+                    id="userType"
+                    createdisabled={true}
+                    error={!!errorsMessage.user_type}
                     helperText={
-                      errorsMessage.group_id ? errorsMessage.group_id : ""
+                      errorsMessage.user_type ? errorsMessage.user_type : ""
                     }
-                    value={GroupName}
-                    onChange={(e, v) => {
-                      ChangeGroupMaster(e, v);
-                      if (errorsMessage.group_id) {
-                        seterrorsMessage((prev) => ({
-                          ...prev,
-                          group_id: "",
-                        }));
-                      }
-                    }}
-                    options={GroupMaster}
-                    option_label={(option) =>
-                      typeof option === "string"
-                        ? option
-                        : option.group_type || ""
+                    value={userTypeName}
+                  />
+                </>
+              )}
+            />
+          </Grid> */}
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="Group"
+              control={control}
+              rules={{ required: false }}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Group", false)}
+                  <CustomAutoComplete
+                    label="Group"
+                    value={
+                      groupOptions.find(
+                        (g) => g.data_uniq_id === selectedGroupId,
+                      ) || null
                     }
+                    onChange={ChangeGroupMaster}
+                    options={groupOptions}
+                    option_label={(option) => option.group_type || ""}
                   />
                 </>
               )}
             />
           </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="userID"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <>
+                  {renderLabel("User ID", true)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    disabled
+                    variant="outlined"
+                    value={lastNumberData}
+                    placeholder={lastNumberData}
+                    sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={6}>
           <Grid item xs={12} sm={4}>
             <Controller
               name="firstName"
@@ -359,6 +513,42 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
               )}
             />
           </Grid>
+        </Grid>
+
+        <Grid container spacing={6}>
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="aadhaar_number"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Aadhaar Number", true)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    value={aadhaarNumber}
+                    onChange={(e) => {
+                      HandleChangeADHAARNumber(e);
+                      if (errorsMessage.aadhaar_number) {
+                        seterrorsMessage((prev) => ({
+                          ...prev,
+                          aadhaar_number: "",
+                        }));
+                      }
+                    }}
+                    error={!!errorsMessage.aadhaar_number}
+                    helperText={
+                      errorsMessage.aadhaar_number
+                        ? errorsMessage.aadhaar_number
+                        : ""
+                    }
+                    placeholder="Aadhaar Number"
+                  />
+                </>
+              )}
+            />
+          </Grid>
 
           <Grid item xs={12} sm={4}>
             <Controller
@@ -392,6 +582,7 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
               )}
             />
           </Grid>
+
           <Grid item xs={12} sm={4}>
             <Controller
               name="phoneNumber"
@@ -429,14 +620,14 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
           </Grid>
         </Grid>
 
-        <Divider sx={{ marginY: 2, mb: 5 }} />
+        <Divider sx={{ marginY: 10, mb: 5 }} />
 
         <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
           2. Address Details
         </Typography>
 
         <Grid container spacing={6}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Controller
               name="address1"
               control={control}
@@ -470,7 +661,7 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Controller
               name="address2"
               control={control}
@@ -490,7 +681,7 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
               )}
             />
           </Grid>
-
+        
           <Grid item xs={12} sm={4}>
             <Controller
               name="state"
@@ -563,6 +754,78 @@ function HandleGroupMaster({ Header, route_back, userType, userNames }) {
         </Grid>
 
         <Divider sx={{ marginY: 2, mb: 5 }} />
+
+        <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
+          3. Bank Details
+        </Typography>
+
+        <Grid container spacing={6}>
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="accountNumber"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Account Number", false)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Account Number"
+                    value={accountNumber}
+                    onChange={HandleChangeAccountNumber}
+                    sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="ifsc"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("IFSC", false)}
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="IFSC"
+                    value={ifscCode}
+                    onChange={(event) => setifscCode(event.target.value)}
+                    sx={{ mb: 5 }}
+                  />
+                </>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Controller
+              name="bankName"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {renderLabel("Name of Bank", false)}
+                  <CustomAutoComplete
+                    id="select-status"
+                    label="Name of Bank"
+                    value={bankName}
+                    onChange={ChangeBankMaster}
+                    options={bankMaster}
+                    option_label={(option) =>
+                      typeof option === "string"
+                        ? option
+                        : option.bank_name || ""
+                    }
+                  />
+                </>
+              )}
+            />
+          </Grid>
+        </Grid>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 5 }}>
           <Button onClick={onCancel} variant="outlined" sx={{ mr: 2 }}>

@@ -55,88 +55,55 @@ function SalesCreate({ Header, route_back }) {
   ];
 
   const [dateOfSelling, setdateOfSelling] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    moment(new Date()).format("YYYY-MM-DD"),
   );
   const [timePickerOpen, setTimePickerOpen] = useState(false);
   const [timeOfSelling, settimeOfSelling] = useState(moment().format("HH:mm"));
   const [flowerTypeID, setflowerTypeID] = useState("");
   const [flowerType, setflowerType] = useState("");
-  const [cashTypeName, setcashTypeName] = useState("Credit");
   const [traderID, settraderID] = useState("");
   const [traderName, settraderName] = useState("");
-  const [farmerID, setfarmerID] = useState("");
-  const [farmerName, setfarmerName] = useState("");
+
   const [quantityValue, setquantityValue] = useState("");
   const [pricePerQuantity, setpricePerQuantity] = useState("");
-  const [discountValue, setdiscountValue] = useState("");
-  const [sumAmount, setsumAmount] = useState("");
+  const [luggageValue, setluggageValue] = useState("");
   const [netAmount, setnetAmount] = useState(0);
-  const [totalAmount, settotalAmount] = useState("");
-  const [tollAmount, settollAmount] = useState("");
-  const [premiumAmount, setpremiumAmount] = useState("");
-  const [premiumStatus, setpremiumStatus] = useState(0);
-  const [tollPriceData, settollPriceData] = useState([]);
+  const [totalAmount, settotalAmount] = useState(0);
 
+  const calculateValues = (qty, price, luggage) => {
+    const q = Number(qty) || 0;
+    const p = Number(price) || 0;
+    const l = Number(luggage) || 0;
 
-  const [commission, setCommission] = useState("");
-  const fetchCommission = async () => {
-    try {
-      const response = await axiosGet.get(
-        `get_commission_value?user_token=${token}`
-      );
+    const net = q * p;
+    const total = net + l;
 
-      if (response.data.action === "success") {
-        setCommission(response.data.user_data?.commission_percentage || "");
-      } else {
-        setAlertMessage(response.data.message || "Failed to fetch commission.");
-        setAlertSeverity("error");
-        setAlertVisible(true);
-      }
-    } catch (err) {
-      setAlertMessage("Network error while fetching.");
-      setAlertSeverity("error");
-      setAlertVisible(true);
-    } finally {
-      setIsLoading(false);
-    }
+    setnetAmount(parseFloat(net.toFixed(2)));
+    settotalAmount(parseFloat(total.toFixed(2)));
   };
-  useEffect(() => {
-    fetchCommission();
-  }, [token]);
 
   const HandleChangeQuantity = (event) => {
     let value = event.target.value;
     if (/^\d*\.?\d{0,2}$/.test(value)) {
-      if (Number(value) >= 0) {
-        setquantityValue(value);
-        const amountValue = Number(value) * Number(pricePerQuantity);
-        
-       
-        let commission_amount = amountValue * (commission / 100);
-        let totalamount = amountValue - commission_amount;
-        setnetAmount(parseFloat(amountValue.toFixed(2)));
-        setsumAmount(parseFloat(commission_amount.toFixed(2)));
-        settotalAmount(parseFloat(totalamount.toFixed(2)));
-      }
+      setquantityValue(value);
+      calculateValues(value, pricePerQuantity, luggageValue);
     }
   };
   const HandleChangePricePerQuantity = (event) => {
     let value = event.target.value;
     if (/^\d*\.?\d{0,2}$/.test(value)) {
-      if (Number(value) >= 0) {
-        setpricePerQuantity(event.target.value);
-        const amountValue = Number(event.target.value) * Number(quantityValue);
-        setnetAmount(parseFloat(amountValue.toFixed(2)));
-        let totalamount = amountValue;
-        let commission_amount = amountValue * (commission / 100);
-        totalamount = totalamount - commission_amount;
-        setsumAmount(parseFloat(commission_amount.toFixed(2)));
-        settotalAmount(parseFloat(totalamount.toFixed(2)));
-      }
+      setpricePerQuantity(value);
+      calculateValues(quantityValue, value, luggageValue);
     }
   };
 
-
+  const HandleChangeLuggage = (event) => {
+    let value = event.target.value;
+    if (/^\d*\.?\d{0,2}$/.test(value)) {
+      setluggageValue(value);
+      calculateValues(quantityValue, pricePerQuantity, value);
+    }
+  };
 
   const handleChangeDateofSelling = (event) => {
     const formattedDate = moment(event.target.value).format("YYYY-MM-DD");
@@ -150,9 +117,8 @@ function SalesCreate({ Header, route_back }) {
     }
   };
 
- 
-
   const [flowerTypeMaster, setflowerTypeMaster] = useState([]);
+  console.log(flowerTypeMaster, "flowerTypeMaster");
 
   const HandleFlowerTypeMaster = () => {
     fetchDateSingle("master/flower_type/get", setflowerTypeMaster, {
@@ -169,35 +135,17 @@ function SalesCreate({ Header, route_back }) {
     if (value != null) {
       setflowerTypeID(value.data_uniq_id);
       setflowerType(value.flower_type);
-      
     } else {
       setflowerTypeID("");
       setflowerTypeID("");
-
     }
   };
 
   const [traderMaster, settraderMaster] = useState([]);
+    console.log(traderMaster, "TraderTypeMaster");
 
   const HandleTraderMaster = () => {
     fetchDateSingle("employee_get", settraderMaster, {
-      access_token: token,
-      search_input: "",
-      from_date: "",
-      to_date: "",
-      user_type: 3,
-      active_status: 1,
-      items_per_page: 10000,
-      order_type: "ASC",
-      order_field: "user_type",
-    });
-  };
-
-
-  const [farmerMaster, setfarmerMaster] = useState([]);
-
-  const HandleFarmerMaster = () => {
-    fetchDateSingle("employee_get", setfarmerMaster, {
       access_token: token,
       search_input: "",
       from_date: "",
@@ -210,56 +158,46 @@ function SalesCreate({ Header, route_back }) {
     });
   };
 
-  const ChangeFarmerMaster = (event, value) => {
+  const ChangeTraderMaster = (event, value) => {
     if (value != null) {
-      setfarmerID(value.data_uniq_id);
-      // setfarmerName(value.first_name);
-      setfarmerName(
+      settraderID(value.data_uniq_id);
+      // settraderName(value.first_name);
+      settraderName(
         value.last_name
           ? `${value.first_name} ${value.last_name}`
-          : value.first_name
+          : value.first_name,
       );
     } else {
-      setfarmerID("");
-      setfarmerName("");
+      settraderID("");
+      settraderName("");
     }
   };
 
   useEffect(() => {
     HandleFlowerTypeMaster();
     HandleTraderMaster();
-    HandleFarmerMaster();
   }, []);
 
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = (e) => {
-
     if (Number(totalAmount) > 0) {
       setIsLoading(true);
       const jsonStructure = {
         access_token: token,
         date_wise_selling: dateOfSelling,
-        farmer_id: farmerID,
-        farmer_name: farmerName,
-        payment_type: cashTypeName,
-        sub_amount: Number(sumAmount),
-        toll_amount: Number(tollAmount),
-        total_amount: Number(totalAmount),
-        flower_type_id: flowerTypeID,
-        flower_type_name: flowerType,
+        time_wise_selling: timeOfSelling,
         trader_id: traderID,
         trader_name: traderName,
+        flower_type_id: flowerTypeID,
+        flower_type_name: flowerType,
         quantity: Number(quantityValue),
         per_quantity: Number(pricePerQuantity),
-        discount: Number(discountValue),
-        time_wise_selling: timeOfSelling,
-        premium_amount: Number(premiumAmount),
-        premium_trader: premiumStatus,
+        group_id: traderID,
       };
       try {
         axiosPost
-          .post("purchaseorder/purchaseorder/create", jsonStructure)
+          .post("sales/sales_order/create", jsonStructure)
           .then((response) => {
             if (response.data.action === "success") {
               onClickCancel();
@@ -361,58 +299,59 @@ function SalesCreate({ Header, route_back }) {
           />
         </Grid>
 
-       <Grid item xs={12} sm={4}>
-  <Controller
-    name="timeOfSelling"
-    control={control}
-    defaultValue={moment().toDate()}
-    rules={{ required: true }}
-    render={({ field }) => (
-      <>
-        {renderLabel("Time Of Selling", true)}
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <TimePicker
-            {...field}
-            ampm // ✅ 12-hour format
-            open={timePickerOpen}
-            onOpen={() => setTimePickerOpen(true)}
-            onClose={() => setTimePickerOpen(false)}
-            value={
-              timeOfSelling ? moment(timeOfSelling, "HH:mm").toDate() : null
-            }
-            onChange={(newValue) => {
-              field.onChange(newValue);
-              if (newValue) {
-                handleChangeTimeofSelling(newValue);
-                setTimePickerOpen(false); // ✅ close dropdown after selecting
-              }
-              if (errorsMessage.time_wise_selling) {
-                seterrorsMessage((prev) => ({
-                  ...prev,
-                  time_wise_selling: "",
-                }));
-              }
-            }}
-            slotProps={{
-              actionBar: { actions: [] }, // hides OK/Cancel
-              textField: {
-                fullWidth: true,
-                size: "small",
-                error: !!errorsMessage.time_wise_selling,
-                helperText: errorsMessage.time_wise_selling || "",
-                inputProps: {
-                  onKeyDown: (e) => e.preventDefault(), // prevent typing
-                },
-                onClick: () => setTimePickerOpen(true),
-              },
-            }}
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="timeOfSelling"
+            control={control}
+            defaultValue={moment().toDate()}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <>
+                {renderLabel("Time Of Selling", true)}
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <TimePicker
+                    {...field}
+                    ampm // ✅ 12-hour format
+                    open={timePickerOpen}
+                    onOpen={() => setTimePickerOpen(true)}
+                    onClose={() => setTimePickerOpen(false)}
+                    value={
+                      timeOfSelling
+                        ? moment(timeOfSelling, "HH:mm").toDate()
+                        : null
+                    }
+                    onChange={(newValue) => {
+                      field.onChange(newValue);
+                      if (newValue) {
+                        handleChangeTimeofSelling(newValue);
+                        setTimePickerOpen(false); // ✅ close dropdown after selecting
+                      }
+                      if (errorsMessage.time_wise_selling) {
+                        seterrorsMessage((prev) => ({
+                          ...prev,
+                          time_wise_selling: "",
+                        }));
+                      }
+                    }}
+                    slotProps={{
+                      actionBar: { actions: [] }, // hides OK/Cancel
+                      textField: {
+                        fullWidth: true,
+                        size: "small",
+                        error: !!errorsMessage.time_wise_selling,
+                        helperText: errorsMessage.time_wise_selling || "",
+                        inputProps: {
+                          onKeyDown: (e) => e.preventDefault(), // prevent typing
+                        },
+                        onClick: () => setTimePickerOpen(true),
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </>
+            )}
           />
-        </LocalizationProvider>
-      </>
-    )}
-  />
-</Grid>
-
+        </Grid>
 
         {/* <Grid item xs={12} sm={4}>
           <Controller
@@ -510,36 +449,36 @@ function SalesCreate({ Header, route_back }) {
       <Grid container spacing={6} sx={{ marginBottom: "18px" }}>
         <Grid item xs={12} sm={4}>
           <Controller
-            name="farmer"
+            name="trader"
             control={control}
             rules={{ required: true }}
             render={({ field }) => (
               <>
-                {renderLabel("Farmer", true)}
+                {renderLabel("Trader", true)}
                 <CustomAutoComplete
                   id="select-status"
-                  label="Farmer"
-                  error={!!errorsMessage.farmer_id}
+                  label="Trader"
+                  error={!!errorsMessage.trader_id}
                   helperText={
-                    errorsMessage.farmer_id ? errorsMessage.farmer_id : ""
+                    errorsMessage.trader_id ? errorsMessage.trader_id : ""
                   }
-                  value={farmerName}
+                  value={traderName}
                   onChange={(e, v) => {
-                    ChangeFarmerMaster(e, v);
-                    if (errorsMessage.farmer_id) {
+                    ChangeTraderMaster(e, v);
+                    if (errorsMessage.trader_id) {
                       seterrorsMessage((prev) => ({
                         ...prev,
-                        farmer_id: "",
+                        trader_id: "",
                       }));
                     }
                   }}
-                  options={farmerMaster}
+                  options={traderMaster}
                   option_label={
                     (option) =>
                       typeof option === "string"
                         ? option
                         : `${option.user_id}-${option.first_name}${option.last_name ? " " + option.last_name : ""}` ||
-                        ""
+                          ""
 
                     // typeof option === "string"
                     //   ? option
@@ -576,7 +515,7 @@ function SalesCreate({ Header, route_back }) {
                     errorsMessage.quantity ? errorsMessage.quantity : ""
                   }
                   placeholder="Quantity"
-                // sx={{ mb: 5 }}
+                  // sx={{ mb: 5 }}
                 />
               </>
             )}
@@ -616,9 +555,9 @@ function SalesCreate({ Header, route_back }) {
       </Grid>
 
       <Grid container spacing={6} sx={{ marginBottom: "18px" }}>
-         <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Controller
-            name="sum_amount"
+            name="total_amount"
             control={control}
             render={({ field }) => (
               <>
@@ -628,9 +567,9 @@ function SalesCreate({ Header, route_back }) {
                   fullWidth
                   disabled
                   variant="outlined"
-                  value={netAmount.toLocaleString("en-IN")}
+                  value={totalAmount.toLocaleString("en-IN")}
                   placeholder="Total Amount"
-                // sx={{ mb: 5 }}
+                  // sx={{ mb: 5 }}
                 />
               </>
             )}
@@ -638,19 +577,19 @@ function SalesCreate({ Header, route_back }) {
         </Grid>
         <Grid item xs={12} sm={4}>
           <Controller
-            name="sum_amount"
+            name="luggage_amount"
             control={control}
             render={({ field }) => (
               <>
-                {renderLabel("Commission Amount", false)}
+                {renderLabel("Luggage Amount", false)}
                 <CustomTextField
                   {...field}
                   fullWidth
-                  disabled
                   variant="outlined"
-                  value={sumAmount.toLocaleString("en-IN")}
-                  placeholder="Commission Amount"
-                // sx={{ mb: 5 }}
+                  value={luggageValue}
+                  onChange={HandleChangeLuggage}
+                  placeholder="Luggage Amount"
+                  // sx={{ mb: 5 }}
                 />
               </>
             )}
@@ -668,7 +607,7 @@ function SalesCreate({ Header, route_back }) {
                   fullWidth
                   disabled
                   variant="outlined"
-                  value={totalAmount.toLocaleString("en-IN")}
+                  value={netAmount.toLocaleString("en-IN")}
                   placeholder="Net Amount"
                   sx={{ mb: 5 }}
                 />

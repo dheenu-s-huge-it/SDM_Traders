@@ -23,7 +23,6 @@ import CustomAutoComplete from "./CustomAutoComplete";
 import FileDisplay from "./ScannedDocumentView";
 
 function UserView({ Header, route_back, userType, userNames }) {
-  const [isBoardMember, setIsBoardMember] = useState(false);
   const USER_ID = Cookies.get("data_uniq_id");
   const {
     control,
@@ -36,58 +35,27 @@ function UserView({ Header, route_back, userType, userNames }) {
 
   const token = Cookies.get("token");
 
-  const userTypeMaster = [
-    { id: 2, label: "Trader" },
-    { id: 3, label: "Trader" },
-    { id: 4, label: "Employee" },
-  ];
-
   const [stateMaster, setstateMaster] = useState([]);
   const [aadhaarNumber, setaadhaarNumber] = useState("");
   const [userTypeID, setuserTypeID] = useState(userType);
   const [userTypeName, setuserTypeName] = useState(userNames);
   const [firstName, setfirstName] = useState("");
   const [lastName, setlastName] = useState("");
-  const [nickName, setnickName] = useState("");
   const [emailID, setemailID] = useState("");
   const [mobileNumber, setmobileNumber] = useState("");
   const [dateOfJoinging, setdateOfJoinging] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    moment(new Date()).format("YYYY-MM-DD"),
   );
   const [addressOne, setaddressOne] = useState("");
   const [addressTwo, setaddressTwo] = useState("");
-  const [GroupID, setGroupID] = useState("");
-  const [GroupName, setGroupName] = useState("");
   const [cityID, setcityID] = useState("MzcxNDczMzA5ODEzMDQyNDQ=");
   const [cityName, setcityName] = useState("Erode");
   const [stateID, setstateID] = useState("MzU5MzgwODkwMDY1MjI3NQ==");
   const [stateName, setstateName] = useState("Tamil Nadu");
   const [accountNumber, setaccountNumber] = useState("");
   const [ifscCode, setifscCode] = useState("");
-  const [dayWise, setdayWise] = useState("");
-  const [amountWise, setamountWise] = useState("");
-
-  const [premiumTrader, setpremiumTrader] = useState(0);
-
-  const handlePremiumChange = (event) => {
-    if (event.target.checked === true) {
-      setpremiumTrader(1);
-    } else {
-      setpremiumTrader(0);
-    }
-  };
-
-  const HandleChangeDayWise = (event) => {
-    if (Number(event.target.value) >= 0) {
-      setdayWise(event.target.value);
-    }
-  };
-
-  const HandleChangeAmountWise = (event) => {
-    if (Number(event.target.value) >= 0) {
-      setamountWise(event.target.value);
-    }
-  };
+  const [bankID, setbankID] = useState("");
+  const [bankName, setbankName] = useState("");
 
   const HandleChangeMobileNumber = (event) => {
     const regex = /^\d{0,10}$/;
@@ -108,28 +76,6 @@ function UserView({ Header, route_back, userType, userNames }) {
     } else {
       setuserTypeID(userType);
       setuserTypeName(userNames);
-    }
-  };
-
-  const [GroupMaster, setGroupMaster] = useState([]);
-
-  const HandleGroupMaster = () => {
-    fetchDateSingle("master/group/get", setGroupMaster, {
-      access_token: token,
-      search_input: "",
-      from_date: "",
-      to_date: "",
-      active_status: 1,
-    });
-  };
-
-  const ChangeGroupMaster = (event, value) => {
-    if (value != null) {
-      setGroupID(value.data_uniq_id);
-      setGroupName(value.group_type);
-    } else {
-      setGroupID("");
-      setGroupName("");
     }
   };
 
@@ -180,6 +126,20 @@ function UserView({ Header, route_back, userType, userNames }) {
     }
   };
 
+  const [bankMaster, setbankMaster] = useState([]);
+
+  const HandleBankMaster = () => {
+    fetchDateSingle("master/bankmaster/get", setbankMaster, {
+      access_token: token,
+      search_input: "",
+      from_date: "",
+      to_date: "",
+      active_status: 1,
+      items_per_page: 1000,
+    });
+  };
+
+  const [lastNumberData, setlastNumberData] = useState("");
 
   const HandleEditGET = (value) => {
     if (value !== undefined && value !== null) {
@@ -193,25 +153,21 @@ function UserView({ Header, route_back, userType, userNames }) {
               setuserTypeName(data[0]?.user_type_name);
               setfirstName(data[0]?.first_name);
               setlastName(data[0]?.last_name);
-              setnickName(data[0]?.nick_name);
               setemailID(data[0]?.email_id);
               setmobileNumber(data[0]?.mobile_number);
               setdateOfJoinging(data[0]?.data_of_joining);
               setaddressOne(data[0]?.address_1);
               setaddressTwo(data[0]?.address_2);
-              setGroupID(data[0]?.group_id);
-              setGroupName(data[0]?.group_name);
               setcityID(data[0]?.district_id);
               setcityName(data[0]?.district_name);
               setstateID(data[0]?.state_id);
               setstateName(data[0]?.state_name);
               setaccountNumber(data[0]?.account_number);
               setifscCode(data[0]?.ifsc_code);
-              setdayWise(data[0]?.day_wise_number);
-              setamountWise(data[0]?.amount_wise_number);
+              setbankID(data[0]?.bank_id);
+              setbankName(data[0]?.bank_name);
               setlastNumberData(data[0]?.user_id);
               setaadhaarNumber(data[0]?.aadhaar_number);
-              setpremiumTrader(data[0]?.premium_trader);
             }
           });
       } catch (error) {
@@ -220,10 +176,19 @@ function UserView({ Header, route_back, userType, userNames }) {
     }
   };
 
+  const ChangeBankMaster = (event, value) => {
+    if (value != null) {
+      setbankID(value.data_uniq_id);
+      setbankName(value.bank_name);
+    } else {
+      setbankID("");
+      setbankName("");
+    }
+  };
 
   useEffect(() => {
-    HandleGroupMaster();
     HandleCityMaster("MzU5MzgwODkwMDY1MjI3NQ==");
+    HandleBankMaster();
     HandleStateMaster();
     HandleEditGET(USER_ID);
   }, [userTypeID]);
@@ -240,13 +205,7 @@ function UserView({ Header, route_back, userType, userNames }) {
 
   const onClickCancel = () => {
     Cookies.remove("data_uniq_id");
-    if (userTypeName === "Trader" && isBoardMember === false) {
-      router.push("/all-traders");
-    } else if (userTypeName === "Employee" && isBoardMember === false) {
-      router.push("/all-employees");
-    } else if (isBoardMember === true) {
-      router.push("/all-board-members");
-    } else {
+    if (userTypeName === "Trader") {
       router.push(route_back);
     }
   };
@@ -265,37 +224,57 @@ function UserView({ Header, route_back, userType, userNames }) {
         View {userTypeName}
       </Typography>
       <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
-        1. Personal Details
+        1. Account Details
       </Typography>
 
       <Grid container spacing={6}>
-         <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Controller
-            name="Group"
+            name="userType"
             control={control}
             rules={{ required: true }}
             render={({ field }) => (
               <>
-                {renderLabel("Group", true)}
+                {renderLabel("User Type", true)}
                 <CustomAutoComplete
                   id="select-status"
-                  label="Group"
+                  label="User Type"
                   createdisabled={true}
-                  error={!!errorsMessage.group_id}
+                  error={!!errorsMessage.user_type}
                   helperText={
-                    errorsMessage.group_id ? errorsMessage.group_id : ""
+                    errorsMessage.user_type ? errorsMessage.user_type : ""
                   }
-                  value={GroupName}
-                  onChange={ChangeGroupMaster}
-                  options={GroupMaster}
-                  option_label={(option) =>
-                    typeof option === "string" ? option : option.group_type || ""
-                  }
+                  value={userTypeName}
                 />
               </>
             )}
           />
         </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="userID"
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <>
+                {renderLabel("User ID", true)}
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  value={lastNumberData}
+                  placeholder={lastNumberData}
+                  sx={{ mb: 5 }}
+                />
+              </>
+            )}
+          />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6}>
         <Grid item xs={12} sm={4}>
           <Controller
             name="firstName"
@@ -347,7 +326,33 @@ function UserView({ Header, route_back, userType, userNames }) {
       </Grid>
 
       <Grid container spacing={6}>
-        
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="aadhaar_number"
+            control={control}
+            render={({ field }) => (
+              <>
+                {renderLabel("Aadhaar Number", true)}
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  value={aadhaarNumber}
+                  onChange={(e) => setaadhaarNumber(e.target.value)}
+                  error={!!errorsMessage.aadhaar_number}
+                  helperText={
+                    errorsMessage.aadhaar_number
+                      ? errorsMessage.aadhaar_number
+                      : ""
+                  }
+                  placeholder="Aadhaar Number"
+                  sx={{ mb: 5 }}
+                />
+              </>
+            )}
+          />
+        </Grid>
         <Grid item xs={12} sm={4}>
           <Controller
             name="emailID"
@@ -400,15 +405,14 @@ function UserView({ Header, route_back, userType, userNames }) {
         </Grid>
       </Grid>
 
-
-      <Divider sx={{ marginY: 2, mb: 5 }} />
+      <Divider sx={{ marginY: 10, mb: 5 }} />
 
       <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
         2. Address Details
       </Typography>
 
       <Grid container spacing={6}>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6}>
           <Controller
             name="address1"
             control={control}
@@ -435,7 +439,7 @@ function UserView({ Header, route_back, userType, userNames }) {
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6}>
           <Controller
             name="address2"
             control={control}
@@ -456,7 +460,6 @@ function UserView({ Header, route_back, userType, userNames }) {
             )}
           />
         </Grid>
-       
 
         <Grid item xs={12} sm={4}>
           <Controller
@@ -516,7 +519,81 @@ function UserView({ Header, route_back, userType, userNames }) {
       </Grid>
 
       <Divider sx={{ marginY: 2, mb: 5 }} />
-  
+
+      <Typography variant="h5" fontWeight={500} my={0.5} sx={{ mb: 5 }}>
+        3. Bank Details
+      </Typography>
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="accountNumber"
+            control={control}
+            render={({ field }) => (
+              <>
+                {renderLabel("Account Number", false)}
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  placeholder="Account Number"
+                  value={accountNumber}
+                  onChange={(event) => setaccountNumber(event.target.value)}
+                  sx={{ mb: 5 }}
+                />
+              </>
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="ifsc"
+            control={control}
+            render={({ field }) => (
+              <>
+                {renderLabel("IFSC", false)}
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  placeholder="IFSC"
+                  value={ifscCode}
+                  onChange={(event) => setifscCode(event.target.value)}
+                  sx={{ mb: 5 }}
+                />
+              </>
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Controller
+            name="bankName"
+            control={control}
+            render={({ field }) => (
+              <>
+                {renderLabel("Name of Bank", false)}
+                <CustomAutoComplete
+                  id="select-status"
+                  label="Name of Bank"
+                  value={bankName}
+                  onChange={ChangeBankMaster}
+                  createdisabled={true}
+                  options={bankMaster}
+                  option_label={(option) =>
+                    typeof option === "string" ? option : option.bank_name || ""
+                  }
+                />
+              </>
+            )}
+          />
+        </Grid>
+      </Grid>
+
+      <Divider sx={{ marginY: 2, mb: 5 }} />
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         <Button onClick={onCancel} variant="outlined" sx={{ mr: 2 }}>

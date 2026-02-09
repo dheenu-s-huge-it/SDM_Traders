@@ -351,7 +351,7 @@ const AllSales = () => {
   const fetchExportData = async (type) => {
     axiosGet
       .get(
-        `purchaseorder/purchaseorder/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${flowerTypeID}&payment_type=${cashTypeName}`,
+        `sales/sales_order/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${flowerTypeID}&payment_type=${cashTypeName}`,
       )
       .then((response) => {
         let data = response?.data?.data;
@@ -452,7 +452,7 @@ const AllSales = () => {
 
     axiosGet
       .get(
-        `purchaseorder/purchaseorder/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=${searchFinal}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&flower_type_id=${flowerTypeID}&payment_type=${cashTypeName}&group_id=${groupID}`,
+        `sales/sales_order/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=${searchFinal}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&flower_type_id=${flowerTypeID}&payment_type=${cashTypeName}&group_id=${groupID}`,
       )
       .then((response) => {
         setData(response.data.data);
@@ -489,7 +489,7 @@ const AllSales = () => {
     setIsLoading(true);
     axiosGet
       .get(
-        `purchaseorder/purchaseorder/filter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`,
+        `sales/sales_order/filter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`,
       )
       .then((response) => {
         setFilterData(response.data.data);
@@ -898,7 +898,7 @@ const AllSales = () => {
         label: item.label,
       };
       axiosPost
-        .post("purchaseorder/purchaseorder/filter", jsonData)
+        .post("sales/sales_order/filter", jsonData)
         .then((response) => {
           setEffectToggle(!effectToggle);
           setAlertMessage("Updated successfully.");
@@ -920,7 +920,7 @@ const AllSales = () => {
           label: item.label,
         };
         axiosPost
-          .post("purchaseorder/purchaseorder/filter", uncheckData)
+          .post("sales/sales_order/filter", uncheckData)
           .then((response) => {
             setEffectToggle(!effectToggle);
             setAlertMessage("Updated successfully.");
@@ -949,7 +949,7 @@ const AllSales = () => {
       data_ids: [singleDataJson?.data_uniq_id],
     };
     axiosPost
-      .post(`purchaseorder/purchaseorder/delete`, jsonData)
+      .post(`sales/sales_order/delete`, jsonData)
       .then((response) => {
         if (response.data.action === "success") {
           setError({ status: "success", message: response.data.message });
@@ -1241,6 +1241,10 @@ const AllSales = () => {
           }
           body, * {
             font-family: "Nimbus Mono L Bold", monospace !important;
+          }
+          @page {
+            size: auto;
+            margin: 0;
           }
         </style>
       </head>
@@ -1672,7 +1676,7 @@ const AllSales = () => {
           </div>
         </div>
       </div> */}
-
+      {/* 
       <div style={{ display: "none" }}>
         <div
           ref={componentRef}
@@ -1687,20 +1691,20 @@ const AllSales = () => {
             boxSizing: "border-box",
           }}
         >
-          {/* HEADER */}
+
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              border: "1px solid #000",
-              padding: "4px",
+              borderBottom: "1px solid #000",
+              paddingBottom: "8px",
             }}
           >
             <div
               style={{
-                width: "260px",
+                width: "60px",
                 textAlign: "center",
-                fontSize: "260px",
+                fontSize: "32px",
                 fontWeight: "bold",
               }}
             >
@@ -1721,7 +1725,7 @@ const AllSales = () => {
             </div>
           </div>
 
-          {/* INVOICE META */}
+
           <div
             style={{
               display: "flex",
@@ -1753,7 +1757,6 @@ const AllSales = () => {
             <div>Ph : {singleDataJson?.phone || ""}</div>
           </div>
 
-          {/* ITEMS TABLE */}
           <table
             style={{
               width: "100%",
@@ -1829,7 +1832,6 @@ const AllSales = () => {
             </tbody>
           </table>
 
-          {/* TOTALS */}
           <div
             style={{
               marginTop: "10px",
@@ -1871,7 +1873,6 @@ const AllSales = () => {
             </div>
           </div>
 
-          {/* FOOTER */}
           <div style={{ marginTop: "20px", fontSize: "11px" }}>
             <div>
               <strong>Rupees :</strong> Three Thousand Four Hundred And Fifty
@@ -1889,6 +1890,492 @@ const AllSales = () => {
               <div>Customer Signature</div>
               <div>Authorised Signatory</div>
             </div>
+          </div>
+        </div>
+      </div>
+*/}
+
+      <div style={{ display: "none" }}>
+        <div
+          ref={componentRef}
+          style={{
+            width: "210mm",
+            height: "297mm",
+            padding: "5mm",
+            border: "1px solid #000",
+            fontFamily: "'Segoe UI', Arial, sans-serif",
+            fontSize: "12px",
+            color: "#000",
+            backgroundColor: "#fff",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Header Section */}
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <tbody>
+              <tr>
+                <td
+                  style={{
+                    width: "25%",
+                    textAlign: "center",
+                    border: "1px solid #000",
+                    padding: "5px",
+                  }}
+                >
+                  <div
+                    style={{
+                      border: "2px solid #000",
+                      borderRadius: "50%",
+                      width: "45px",
+                      height: "45px",
+                      margin: "0 auto",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                    }}
+                  >
+                    சுரபி
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "9px",
+                      marginTop: "4px",
+                      background: "#333",
+                      color: "#fff",
+                      padding: "1px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ஸ்ரீ சுரபி அக்ரி சென்டர்
+                  </div>
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    verticalAlign: "top",
+                    padding: "0 5px",
+                  }}
+                >
+                  <h2
+                    style={{
+                      margin: "0",
+                      fontSize: "18px",
+                      letterSpacing: "0.5px",
+                      fontWeight: "800",
+                    }}
+                  >
+                    SRI SURABI AGRI CENTRE
+                  </h2>
+                  <p
+                    style={{
+                      margin: "2px 0",
+                      fontSize: "10px",
+                      lineHeight: "1.1",
+                    }}
+                  >
+                    425, Mysore Trunk Road, RangaSamuthiram,
+                    Sathyamangalam-638402 Ph No : 04295222446
+                  </p>
+                  <p
+                    style={{
+                      margin: "2px 0",
+                      fontSize: "9px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    FL No: ERD/STY/R-142/2018-21, S.L.No:1728/EDE/2015,
+                    P.L.No:STY41/2016-17
+                  </p>
+                  <strong style={{ fontSize: "11px" }}>
+                    GSTIN : 33BDXPC4945B1ZM
+                  </strong>
+                </td>
+                <td
+                  style={{
+                    width: "15%",
+                    textAlign: "right",
+                    verticalAlign: "top",
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                  }}
+                >
+                  Cash
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Invoice Info Bar */}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderLeft: "1px solid #000",
+              borderRight: "1px solid #000",
+            }}
+          >
+            <tbody>
+              <tr>
+                <td
+                  colSpan={2}
+                  style={{
+                    padding: "4px",
+                    borderTop: "1px solid #000",
+                    borderBottom: "1px solid #000",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    textDecoration: "underline",
+                    fontSize: "14px",
+                  }}
+                >
+                  INVOICE
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    width: "60%",
+                    borderRight: "1px solid #000",
+                    padding: "3px",
+                    fontWeight: "bold",
+                    fontSize: "11px",
+                  }}
+                >
+                  No : 19065
+                </td>
+                <td
+                  style={{
+                    padding: "3px",
+                    fontWeight: "bold",
+                    fontSize: "11px",
+                  }}
+                >
+                  Date :{" "}
+                  {singleDataJson?.date_wise_selling
+                    ? new Date(singleDataJson.date_wise_selling)
+                        .toLocaleDateString("en-GB")
+                        .replace(/\//g, "-")
+                    : ""}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  colSpan={2}
+                  style={{
+                    borderTop: "1px solid #000",
+                    borderBottom: "1px solid #000",
+                    padding: "4px 6px",
+                    position: "relative",
+                    fontSize: "11px",
+                  }}
+                >
+                  <span style={{ fontWeight: "bold" }}>To:</span> &nbsp;
+                  <strong style={{ fontSize: "12px" }}>
+                    {singleDataJson?.trader_name ||
+                      "SHANMUGAM.ATHIYAPPA KAVUNDAN PUTHUR"}
+                  </strong>
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: "6px",
+                      bottom: "4px",
+                      fontWeight: "bold",
+                      fontSize: "10px",
+                    }}
+                  >
+                    PH No : {singleDataJson?.phone || "9865044455"}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Items Table */}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderLeft: "1px solid #000",
+              borderRight: "1px solid #000",
+              borderBottom: "1px solid #000",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  textAlign: "center",
+                  fontSize: "11px",
+                  borderBottom: "1px solid #000",
+                }}
+              >
+                <th
+                  style={{
+                    borderRight: "1px solid #000",
+                    width: "15%",
+                    padding: "4px",
+                  }}
+                >
+                  HSN
+                </th>
+                <th style={{ borderRight: "1px solid #000", width: "45%" }}>
+                  Particulars
+                </th>
+                <th style={{ borderRight: "1px solid #000", width: "10%" }}>
+                  Qty / Pcs
+                </th>
+                <th style={{ borderRight: "1px solid #000", width: "10%" }}>
+                  Rate
+                </th>
+                <th style={{ borderRight: "1px solid #000", width: "8%" }}>
+                  Tax%
+                </th>
+                <th style={{ width: "12%" }}>Taxable Amount</th>
+              </tr>
+            </thead>
+            <tbody style={{ fontSize: "11px" }}>
+              <tr style={{ verticalAlign: "top" }}>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    padding: "8px",
+                    textAlign: "center",
+                  }}
+                >
+                  {/* Example HSN */}
+                  38089199
+                </td>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    padding: "6px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {singleDataJson?.flower_type_name || "KUNOICHI - 250 ML"}
+                </td>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    padding: "6px",
+                    textAlign: "center",
+                  }}
+                >
+                  {singleDataJson?.quantity || "1"}
+                </td>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    padding: "6px",
+                    textAlign: "right",
+                  }}
+                >
+                  {Number(singleDataJson?.per_quantity || 1822.03).toFixed(2)}
+                </td>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    padding: "6px",
+                    textAlign: "center",
+                  }}
+                >
+                  18.0
+                </td>
+                <td style={{ padding: "6px", textAlign: "right" }}>
+                  {Number(singleDataJson?.sub_amount || 1822.03).toFixed(2)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Calculations Section */}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderLeft: "1px solid #000",
+              borderRight: "1px solid #000",
+              borderBottom: "1px solid #000",
+            }}
+          >
+            <tbody>
+              <tr
+                style={{ borderBottom: "1px solid #000", fontWeight: "bold" }}
+              >
+                <td
+                  style={{
+                    width: "40%",
+                    borderRight: "1px solid #000",
+                    padding: "5px",
+                  }}
+                >
+                  E&OE. &nbsp;&nbsp;&nbsp;&nbsp; Total Qty :
+                </td>
+                <td style={{ width: "60%", textAlign: "center" }}>
+                  {singleDataJson?.quantity || "1"}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    borderRight: "1px solid #000",
+                    verticalAlign: "top",
+                    padding: "0",
+                  }}
+                >
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: "4px 8px" }}>Total Before Tax</td>
+                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
+                          2923.72
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "4px 8px" }}>CGST</td>
+                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
+                          263.14
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "4px 8px" }}>SGST</td>
+                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
+                          263.14
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          colSpan={2}
+                          style={{
+                            border: "1px solid #000",
+                            padding: "10px",
+                            margin: "5px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                          }}
+                        >
+                          ஞாயிறு விடுமுறை
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td
+                  style={{
+                    verticalAlign: "top",
+                    textAlign: "right",
+                    padding: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "9px",
+                      marginBottom: "8px",
+                      color: "#444",
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    2923.72@GST 18% = 526.27 (CGST@9%=263.14, SGST@9%=263.14,
+                    IGST@0%=0.0)
+                  </div>
+                  <div
+                    style={{
+                      borderBottom: "1px solid #000",
+                      paddingBottom: "3px",
+                      marginBottom: "3px",
+                    }}
+                  >
+                    Rounded off <span style={{ marginLeft: "40px" }}>.01</span>
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+                    Grand Total :{" "}
+                    <span style={{ marginLeft: "10px" }}>₹ 3450.00</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Footer Section */}
+          <div
+            style={{
+              padding: "4px 6px",
+              borderLeft: "1px solid #000",
+              borderRight: "1px solid #000",
+              fontWeight: "bold",
+              fontSize: "11px",
+            }}
+          >
+            Rs: Three Thousand Four Hundred And Fifty Only.
+          </div>
+
+          <table
+            style={{
+              width: "100%",
+              border: "1px solid #000",
+              fontSize: "10px",
+              flex: 1,
+              display: "table",
+            }}
+          >
+            <tbody style={{ height: "100%" }}>
+              <tr style={{ height: "100%" }}>
+                <td
+                  style={{
+                    width: "55%",
+                    borderRight: "1px solid #000",
+                    padding: "4px 6px",
+                    lineHeight: "1.3",
+                    height: "100%",
+                    verticalAlign: "bottom",
+                  }}
+                >
+                  1. GOOD ONCE SOLD CANNOT BE TAKEN BACK OR EXCHANGED 2. SUBJECT
+                  TO SATHYAMANGALAM JURISDICTION.
+                  <span
+                    style={{ fontWeight: "bold", textDecoration: "overline" }}
+                  >
+                    Customer Signature
+                  </span>
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "4px 6px",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <div style={{ fontWeight: "bold" }}>
+                    For SRI SURABI AGRI CENTRE
+                  </div>
+                  <div style={{ fontWeight: "bold" }}>Authorised Signatory</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div
+            style={{ textAlign: "center", fontSize: "9px", marginTop: "2px" }}
+          >
+            Page No: 1
+            <p
+              style={{
+                fontSize: "9px",
+                margin: "1px 0",
+                fontStyle: "italic",
+                lineHeight: "1.2",
+              }}
+            >
+              இந்த பில்லில் உள்ள பொருள் விஷம் என்பது தெரியும் இதனை பயிர்
+              பாதுகாப்பிற்கு மட்டும் பயன்படுத்துவேன் என உறுதி கூறுகிறேன்.
+            </p>
           </div>
         </div>
       </div>

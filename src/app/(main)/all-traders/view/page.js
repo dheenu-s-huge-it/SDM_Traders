@@ -7,7 +7,7 @@ export const metadata = {
 
 
 const Action = () => {
-  return <UserView Header = {'Trader'} route_back = {'/all-traders'} userType = {2} userNames = {'Trader'}/>;
+  return <UserView Header = {'Trader'} route_back = {'/all-traders'} userType = {3} userNames = {'Trader'}/>;
 };
 
 export default Action;
