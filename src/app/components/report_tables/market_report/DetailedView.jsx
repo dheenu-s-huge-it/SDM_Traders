@@ -219,8 +219,8 @@ const DetailedView = () => {
             formattedData["Flower Type"] = String(flower.flower_type) || "---";
             formattedData["Quantity"] =
               String(flower.total_quantity?.toFixed(2)) || "---";
-            formattedData["Commission Amount"] =
-              String(flower.total_commission?.toFixed(2)) || "---";
+            formattedData["Luggage Amount"] =
+              String(flower.luggage?.toFixed(2)) || "---";
             formattedData["Total Amount"] =
               String(flower.total_amount?.toFixed(2)) || "---";
           }
@@ -257,7 +257,7 @@ const DetailedView = () => {
         if (selectedItems.includes("Flower")) {
           formattedData["Flower Type"] = "---";
           formattedData["Quantity"] = "---";
-          formattedData["Commission Amount"] = "---";
+          formattedData["Luggage Amount"] = "---";
           formattedData["Total Amount"] = "---";
         }
 
@@ -280,7 +280,7 @@ const DetailedView = () => {
     const exportData = filterDataSelectedData(data, selectedLabels);
     const summaryFields = [
       "Quantity",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
       "Total Quantity",
       "Total T.Amount",
@@ -314,7 +314,7 @@ const DetailedView = () => {
         const exportData = filterDataSelectedData(data, selectedLabels);
         const summaryFields = [
          "Quantity",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
       "Total Quantity",
       "Total T.Amount",
@@ -355,7 +355,7 @@ const DetailedView = () => {
       if (!data || data.length === 0) return;
   const summaryFields = [
          "Quantity",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
       "Total Quantity",
       "Total T.Amount",
@@ -577,8 +577,8 @@ const DetailedView = () => {
     },
     {
       id: 5,
-      label: `Commission Amount`,
-      value: "total_commission",
+      label: `Luggage Amount`,
+      value: "luggage",
       subColumns: [],
     },
     {
@@ -693,13 +693,13 @@ const DetailedView = () => {
                {item.flower_report?.map((flower, fIndex) => (
                 <Box key={fIndex} sx={{display:"flex"}} >
               <Typography fontSize="14px">
-              {flower.total_commission || "---"}
+              {flower.luggage || "---"}
               </Typography>
               </Box>
             ))}
             </Box>
           ),
-          label: "Commission Amount",
+          label: "Luggage Amount",
           id: 5,
         },
         {
@@ -744,7 +744,7 @@ const DetailedView = () => {
         //             <Typography fontSize="14px"> {flower.total_quantity?.toFixed(2) || "---"}</Typography>
         //           </Box>
         //           <Box sx={{ flex: '1 1 25%', textAlign: 'center' }}>
-        //             <Typography fontSize="14px"> {flower.total_commission?.toFixed(2) || "---"}</Typography>
+        //             <Typography fontSize="14px"> {flower.luggage?.toFixed(2) || "---"}</Typography>
         //           </Box>
         //           <Box sx={{ flex: '1 1 25%', textAlign: 'center' }}>
         //             <Typography fontSize="14px"> {flower.total_amount?.toFixed(2) || "---"}</Typography>
@@ -820,7 +820,7 @@ const DetailedView = () => {
     },
     {
       value: 5,
-      label: "Commission Amount",
+      label: "Luggage Amount",
     },
     { value: 6, label: "Total Qty" },
     { value: 7, label: "Total Comm.Amt" },

@@ -215,8 +215,8 @@ const RateWiseReport = () => {
   //     if (selectedItems.includes("Net Amount"))
   //       formattedData["Net Amount"] = String(Number(item.net_amount || 0).toFixed(2));
 
-  //     if (selectedItems.includes("Commission Amount"))
-  //       formattedData["Commission Amount"] = String(Number(item.commission_amount || 0).toFixed(2));
+  //     if (selectedItems.includes("Luggage Amount"))
+  //       formattedData["Luggage Amount"] = String(Number(item.luggage_amount || 0).toFixed(2));
 
 
   //     if (selectedItems.includes("Total Amount"))
@@ -786,7 +786,7 @@ const RateWiseReport = () => {
     { value: 2, label: "Quantity" },
     { value: 3, label: "Rate" },
     { value: 4, label: "Total Amount" },
-    // { value: 5, label: "Commission Amount" },
+    // { value: 5, label: "Luggage Amount" },
     // { value: 6, label: "Total Amount" },
 
   ];
@@ -851,7 +851,7 @@ const RateWiseReport = () => {
       data_ids: [singleDataJson?.data_uniq_id],
     };
     axiosPost
-      .post(`purchaseorder/purchaseorder/delete`, jsonData)
+      .post(`sales/sales_order/delete`, jsonData)
       .then((response) => {
         setEffectToggle(!effectToggle);
         handleDeleteDialogClose();

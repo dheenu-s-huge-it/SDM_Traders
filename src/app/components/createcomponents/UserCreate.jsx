@@ -384,11 +384,14 @@ function UserCreate({ Header, route_back, userType, userNames }) {
             <Controller
               name="Group"
               control={control}
+              rules={{ required: true }}
               render={() => (
                 <>
                   {renderLabel("Group", false)}
                   <CustomAutoComplete
                     label="Group"
+                    error={!!errorsMessage.group_id}
+                  helperText={errorsMessage.group_id || ""}
                     value={
                       groupOptions.find(
                         (g) => g.data_uniq_id === selectedGroupId,

@@ -50,8 +50,6 @@ function SalesView({ Header, route_back }) {
   const [cashTypeName, setcashTypeName] = useState("Credit");
   const [traderID, settraderID] = useState("");
   const [traderName, settraderName] = useState("");
-  const [farmerID, setfarmerID] = useState("");
-  const [farmerName, setfarmerName] = useState("");
   const [quantityValue, setquantityValue] = useState("");
   const [pricePerQuantity, setpricePerQuantity] = useState("");
   const [discountValue, setdiscountValue] = useState("");
@@ -199,41 +197,13 @@ function SalesView({ Header, route_back }) {
     }
   };
 
-  const [farmerMaster, setfarmerMaster] = useState([]);
-
-  const HandleFarmerMaster = () => {
-    fetchDateSingle("employee_get", setfarmerMaster, {
-      access_token: token,
-      search_input: "",
-      from_date: "",
-      to_date: "",
-      user_type: 2,
-      active_status: 1,
-      items_per_page: 10000,
-      order_type: "ASC",
-      order_field: "user_type",
-    });
-  };
-
-  const ChangeFarmerMaster = (event, value) => {
-    if (value != null) {
-      setfarmerID(value.data_uniq_id);
-      setfarmerName(value.nick_name);
-    } else {
-      setfarmerID("");
-      setfarmerName("");
-    }
-  };
-
-  const [balanceAmount, setbalanceAmount] = useState("");
-  const [paidAmount, setpaidAmount] = useState("");
 
   const HandleEditGET = (value) => {
     if (value !== undefined && value !== null) {
       try {
         axiosGet
           .get(
-            `purchaseorder/purchaseorder/get?access_token=${token}&data_uniq_id=${value}`
+            `sales/sales_order/get?access_token=${token}&data_uniq_id=${value}`
           )
           .then((response) => {
             const data = response.data.data;
@@ -251,12 +221,10 @@ function SalesView({ Header, route_back }) {
               setcashTypeName(data[0]?.payment_type);
               settraderID(data[0]?.trader_id);
               settraderName(data[0]?.trader_name);
-              setfarmerID(data[0]?.farmer_id);
-              setfarmerName(data[0]?.farmer_name);
               setquantityValue(data[0]?.quantity);
               setpricePerQuantity(data[0]?.per_quantity);
               setdiscountValue(data[0]?.discount);
-              setsumAmount(data[0]?.commission_amount);
+              setsumAmount(data[0]?.luggage);
               settotalAmount(data[0]?.total_amount);
               settollAmount(data[0]?.toll_amount);
               settollPriceData(data[0]?.toll_price_data);
@@ -275,7 +243,6 @@ function SalesView({ Header, route_back }) {
   useEffect(() => {
     HandleFlowerTypeMaster();
     HandleTraderMaster();
-    HandleFarmerMaster();
     HandleEditGET(USER_ID);
   }, [USER_ID]);
 
@@ -433,43 +400,8 @@ function SalesView({ Header, route_back }) {
       </Grid>
 
       <Grid container spacing={6} sx={{ marginBottom: "18px" }}>
-        {/* <Grid item xs={12} sm={4}>
-          <Controller
-            name="cash_type"
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <>
-                {renderLabel("Cash Type", true)}
-                <CustomAutoCompleteSelect
-                  id="select-status"
-                  label="Cash Type"
-                  createdisabled={true}
-                  error={!!errorsMessage.payment_type}
-                  helperText={
-                    errorsMessage.payment_type ? errorsMessage.payment_type : ""
-                  }
-                  value={cashTypeName}
-                  onChange={(e, v) => {
-                    ChangeCashType(e, v);
-                    if (errorsMessage.payment_type) {
-                      seterrorsMessage((prev) => ({
-                        ...prev,
-                        payment_type: "",
-                      }));
-                    }
-                  }}
-                  options={cashTypeMaster}
-                  option_label={(option) =>
-                    typeof option === "string" ? option : option.label || ""
-                  }
-                />
-              </>
-            )}
-          />
-        </Grid> */}
 
-        {/* <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Controller
             name="trader"
             control={control}
@@ -492,50 +424,8 @@ function SalesView({ Header, route_back }) {
               </>
             )}
           />
-        </Grid> */}
-        <Grid item xs={12} sm={4}>
-          <Controller
-            name="farmer"
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <>
-                {renderLabel("Farmer", true)}
-                <CustomAutoComplete
-                  id="select-status"
-                  label="Farmer"
-                  createdisabled={true}
-                  error={!!errorsMessage.farmer_id}
-                  helperText={
-                    errorsMessage.farmer_id ? errorsMessage.farmer_id : ""
-                  }
-                  value={farmerName}
-                  onChange={(e, v) => {
-                    ChangeFarmerMaster(e, v);
-                    if (errorsMessage.farmer_id) {
-                      seterrorsMessage((prev) => ({
-                        ...prev,
-                        farmer_id: "",
-                      }));
-                    }
-                  }}
-                  options={farmerMaster}
-                  option_label={
-                    (option) =>
-                      typeof option === "string"
-                        ? option
-                        : `${option.user_id}-${option.first_name}${option.last_name ? " " + option.last_name : ""}` ||
-                          ""
-
-                    // typeof option === "string"
-                    //   ? option
-                    //   : `${option.user_id}-${option.nick_name}` || ""
-                  }
-                />
-              </>
-            )}
-          />
         </Grid>
+
         <Grid item xs={12} sm={4}>
           <Controller
             name="quantity"
@@ -705,7 +595,7 @@ function SalesView({ Header, route_back }) {
             control={control}
             render={({ field }) => (
               <>
-                {renderLabel("Commission Amount", false)}
+                {renderLabel("Luggage Amount", false)}
                 <CustomTextField
                   {...field}
                   fullWidth

@@ -110,7 +110,7 @@ const AllSales = () => {
       paid_status: singleDataJson?.paid_status === 1 ? 0 : 1,
     };
     axiosPost
-      .post(`purchaseorder/payment/update`, jsonData)
+      .post(`sales/payment/update`, jsonData)
       .then((response) => {
         setEffectToggle(!effectToggle);
         setAlertMessage("Updated successfully.");
@@ -132,7 +132,7 @@ const AllSales = () => {
       balance_amount: 0,
     };
     axiosPost
-      .post(`purchaseorder/balanceamt/update`, jsonData)
+      .post(`sales/balanceamt/update`, jsonData)
       .then((response) => {
         setEffectToggle(!effectToggle);
         setAlertMessage("Updated successfully.");
@@ -587,12 +587,6 @@ const AllSales = () => {
       fieldName: "flower_type_name",
     },
     {
-      id: 5,
-      label: `Cash Type`,
-      value: "payment_type",
-      fieldName: "payment_type",
-    },
-    {
       id: 9,
       label: "Quantity",
       value: "quantity",
@@ -624,9 +618,9 @@ const AllSales = () => {
     },
     {
       id: 14,
-      label: "Commission Amount",
-      value: "commission_amount",
-      fieldName: "commission_amount",
+      label: "Luggage Amount",
+      value: "luggage",
+      fieldName: "luggage_amount",
     },
     {
       id: 15,
@@ -659,6 +653,17 @@ const AllSales = () => {
           ),
           label: "S.No",
           id: 1,
+        },
+        {
+          td: (
+            <Box>
+              <Typography fontSize="14px">
+                {item.trader_user_id}-{item.trader_nick_name || " "}
+              </Typography>
+            </Box>
+          ),
+          label: "Trader",
+          id: 2,
         },
         // {
         //   td: (
@@ -695,7 +700,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Date",
-          id: 2,
+          id: 3,
         },
         {
           td: (
@@ -706,7 +711,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Time",
-          id: 3,
+          id: 4,
         },
         {
           td: (
@@ -717,29 +722,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Flower Type",
-          id: 4,
-        },
-        {
-          td: (
-            <Box>
-              <Typography fontSize="14px">
-                {item.payment_type || "---"}
-              </Typography>
-            </Box>
-          ),
-          label: "Cash Type",
           id: 5,
-        },
-        {
-          td: (
-            <Box>
-              <Typography fontSize="14px">
-                {item.trader_user_id}-{item.trader_nick_name || " "}
-              </Typography>
-            </Box>
-          ),
-          label: "Trader",
-          id: 6,
         },
 
         {
@@ -751,7 +734,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Quantity",
-          id: 9,
+          id: 6,
         },
         {
           td: (
@@ -762,7 +745,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Price Per Quantity",
-          id: 10,
+          id: 7,
         },
         {
           td: (
@@ -773,29 +756,18 @@ const AllSales = () => {
             </Box>
           ),
           label: "Total Amount",
-          id: 11,
+          id: 8,
         },
         {
           td: (
             <Box>
               <Typography fontSize="14px">
-                {Number(item?.premium_amount * item?.quantity || 0).toFixed(2)}
+                {Number(item.luggage || 0).toFixed(2)}
               </Typography>
             </Box>
           ),
-          label: "Premium",
-          id: 12,
-        },
-        {
-          td: (
-            <Box>
-              <Typography fontSize="14px">
-                {Number(item.commission_amount || 0).toFixed(2)}
-              </Typography>
-            </Box>
-          ),
-          label: "Commission Amount",
-          id: 13,
+          label: "Luggage Amount",
+          id: 9,
         },
         // {
         //   td: (
@@ -817,7 +789,7 @@ const AllSales = () => {
             </Box>
           ),
           label: "Net Amount",
-          id: 15,
+          id: 10,
         },
         {
           td: (
@@ -882,7 +854,7 @@ const AllSales = () => {
     { value: 9, label: "Price Per Quantity" },
     { value: 10, label: "Total Amount" },
     // { value: 11, label: "Premium" },
-    { value: 12, label: "Commission Amount" },
+    { value: 12, label: "Luggage Amount" },
     // { value: 13, label: "Toll" },
     { value: 14, label: "Net Amount" },
     { value: 15, label: "Status" },
@@ -958,6 +930,7 @@ const AllSales = () => {
           fetchData();
           setSelectedItems([]);
           setActionData("");
+          r;
 
           setIsLoading(false);
 
@@ -1021,7 +994,7 @@ const AllSales = () => {
       balance_amount: 0,
     };
     axiosPost
-      .post(`purchaseorder/balanceamt/update`, jsonData)
+      .post(`sales/balanceamt/update`, jsonData)
       .then((response) => {
         setEffectToggle(!effectToggle);
         setAlertMessage(
@@ -1200,71 +1173,6 @@ const AllSales = () => {
     );
   };
 
-  const componentRef = useRef();
-
-  // const handlePrint = () => {
-  //   handleClose2();
-  //   const printContent = componentRef.current.innerHTML;
-  //   const iframe = document.createElement("iframe");
-
-  //   document.body.appendChild(iframe);
-  //   const doc = iframe.contentWindow.document;
-  //   doc.open();
-  //   doc.write("<html><head><title></title>");
-  //   doc.write("</head><body>");
-  //   doc.write(printContent);
-  //   doc.write("</body></html>");
-  //   doc.close();
-
-  //   iframe.contentWindow.focus();
-  //   iframe.contentWindow.print();
-  //   document.body.removeChild(iframe);
-  // };
-
-  const handlePrint = () => {
-    handleClose2();
-    const printContent = componentRef.current.innerHTML;
-    const iframe = document.createElement("iframe");
-    document.body.appendChild(iframe);
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(`
-    <html>
-      <head>
-        <title></title>
-        <style>
-          @font-face {
-            font-family: "Nimbus Mono L Bold";
-            src: url("/Nimbus Mono L Bold.ttf") format("truetype");
-            font-weight: bold;
-            font-style: normal;
-          }
-          body, * {
-            font-family: "Nimbus Mono L Bold", monospace !important;
-          }
-          @page {
-            size: auto;
-            margin: 0;
-          }
-        </style>
-      </head>
-      <body>
-        ${printContent}
-      </body>
-    </html>
-  `);
-    doc.close();
-
-    // Wait until the iframe's content is rendered before printing
-    iframe.onload = function () {
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        document.body.removeChild(iframe);
-      }, 250); // 250ms delay, adjust if needed
-    };
-  };
-
   const onDelete = () => {
     console.log("delete button clicked");
   };
@@ -1325,6 +1233,79 @@ const AllSales = () => {
     });
     setSuggestions(newSuggestions);
   }, [searchFilterData]);
+
+  const componentRef = useRef();
+
+  const handlePrint = () => {
+    const printContent = componentRef.current.innerHTML;
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+<html>
+<head>
+<title>Invoice Print</title>
+<style>
+  @page {
+    size: ${paperSize === "A5" ? "A5" : "A4"};
+    margin: 8mm;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+
+  .print-page {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    font-size: 11px;
+    padding: 4px;
+  }
+
+  /* Prevent weird page cuts */
+  table, tr, td {
+    page-break-inside: avoid;
+  }
+
+</style>
+</head>
+<body>
+  <div style="transform: scale(${scale}); transform-origin: top left;">
+    ${printContent}
+  </div>
+</body>
+</html>
+`);
+
+    doc.close();
+
+    iframe.onload = function () {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        document.body.removeChild(iframe);
+      }, 500);
+    };
+  };
 
   return (
     <>
@@ -1421,479 +1402,6 @@ const AllSales = () => {
         type="Bulk Payment"
         text={`Are you sure  want to change payment status for ${selectedDataIds.length} selected items?`}
       />
-      {/* <div style={{ display: "none" }}>
-        <div
-          ref={componentRef}
-          style={{
-            textAlign: "center",
-            fontSize: "12px",
-            width: "6in",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: "bold",
-              textAlign: "center",
-              fontSize: "24px",
-            }}
-          >
-            S.D.M. Mahendran
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            Karatoor Road, Sathyamangalam, Erode
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            9442498222
-          </div>
-          <div
-            style={{
-              fontWeight: "semibold",
-              textAlign: "center",
-              marginTop: "12px",
-            }}
-          >
-            Sales BILL RECEIPT
-          </div>
-
-          <div
-            style={{
-              borderTop: "1px dashed #000",
-              margin: "10px 0",
-              height: "0",
-              width: "100%",
-              printColorAdjust: "exact",
-              WebkitPrintColorAdjust: "exact",
-            }}
-          />
-          <div
-            style={{
-              marginTop: "5px",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>
-              Date:
-              <span style={{ fontWeight: "bold" }}>
-                {singleDataJson?.date_wise_selling
-                  ? new Date(singleDataJson?.date_wise_selling)
-                      .toLocaleDateString("en-GB")
-                      .replace(/\//g, "-")
-                  : ""}
-              </span>
-            </div>
-            <div>
-              Time:{" "}
-              <span style={{ fontWeight: "bold", paddingRight: "15px" }}>
-                {singleDataJson?.time_wise_selling
-                  ? new Date(
-                      `1970-01-01T${singleDataJson.time_wise_selling}`,
-                    ).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true, // ✅ 12-hour format
-                    })
-                  : ""}
-              </span>
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderTop: "1px dashed #000",
-              margin: "10px 0",
-              height: "0",
-              width: "100%",
-              printColorAdjust: "exact",
-              WebkitPrintColorAdjust: "exact",
-            }}
-          />
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "5px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              Trader :{" "}
-              <div
-                style={{
-                  fontWeight: "600",
-                  paddingLeft: "10px",
-                  paddingRight: "15px",
-                }}
-              >
-                {singleDataJson.trader_name || ""}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "5px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              Flower :{" "}
-              <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                {singleDataJson?.flower_type_name || ""}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderTop: "1px dashed #000",
-              margin: "10px 0",
-              height: "0",
-              width: "100%",
-              printColorAdjust: "exact",
-              WebkitPrintColorAdjust: "exact",
-            }}
-          />
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "3fr 3fr 3fr 2fr ",
-              fontWeight: "bold",
-              width: "100%",
-            }}
-          >
-            <div>S.no</div>
-            <div>Quantity</div>
-            <div>Rate</div>
-
-            <div>Total</div>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "3fr 3fr 3fr 2fr ",
-              marginTop: "5px",
-              width: "100%",
-            }}
-          >
-            <div>{singleDataJson?.s_no || 1}</div>
-            <div>{Number(singleDataJson?.quantity || 0).toFixed(2)}</div>
-            <div>{Number(singleDataJson?.per_quantity || 0).toFixed(2)}</div>
-            <div>{Number(singleDataJson?.sub_amount || 0).toFixed(2)}</div>
-          </div>
-
-          <div
-            style={{
-              borderTop: "1px dashed #000",
-              margin: "10px 0",
-              height: "0",
-              width: "100%",
-              printColorAdjust: "exact",
-              WebkitPrintColorAdjust: "exact",
-            }}
-          />
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              gap: 4,
-              alignItems: "flex-end",
-              marginTop: "5px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontWeight: "bold",
-                width: "100%",
-                maxWidth: "220px", // Adjust this width as needed
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>Total Amount:</span>
-              <span style={{ fontWeight: "600" }}>
-                ₹{Number(singleDataJson?.sub_amount || 0).toFixed(2)}
-              </span>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontWeight: "bold",
-                width: "100%",
-                maxWidth: "220px", // Adjust this width as needed
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>Commission :</span>
-              <span style={{ fontWeight: "600" }}>
-                ₹{Number(singleDataJson?.commission_amount || 0).toFixed(2)}
-              </span>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontWeight: "bold",
-                width: "100%",
-                maxWidth: "220px", // Adjust this width as needed
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>Net Total :</span>
-              <span style={{ fontWeight: "600" }}>
-                ₹
-                {Math.round(
-                  ((Number(singleDataJson?.sub_amount) || 0) -
-                    (Number(singleDataJson?.commission_amount) || 0)) /
-                    10,
-                ) * 10}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-      {/* 
-      <div style={{ display: "none" }}>
-        <div
-          ref={componentRef}
-          style={{
-            width: "210mm",
-            minHeight: "297mm",
-            padding: "12mm",
-            border: "2px solid #000",
-            fontFamily: "Arial, sans-serif",
-            fontSize: "12px",
-            color: "#000",
-            boxSizing: "border-box",
-          }}
-        >
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              borderBottom: "1px solid #000",
-              paddingBottom: "8px",
-            }}
-          >
-            <div
-              style={{
-                width: "60px",
-                textAlign: "center",
-                fontSize: "32px",
-                fontWeight: "bold",
-              }}
-            >
-              🌾
-            </div>
-
-            <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                SRI SURABI AGRI CENTRE
-              </div>
-              <div>425, Mysore Drunk Road, Rangasamudram</div>
-              <div>Sathyamangalam - 638402</div>
-              <div>Ph: 04295-222446</div>
-              <div style={{ fontSize: "10px", marginTop: "4px" }}>
-                GSTIN : 33BDXPC4945B1ZM <br />
-                F.No : ERDST/YR-14/2018-21
-              </div>
-            </div>
-          </div>
-
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "8px",
-              fontWeight: "bold",
-            }}
-          >
-            <div>No : 19065</div>
-            <div>
-              Date :{" "}
-              {singleDataJson?.date_wise_selling
-                ? new Date(singleDataJson.date_wise_selling)
-                    .toLocaleDateString("en-GB")
-                    .replace(/\//g, "-")
-                : ""}
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "6px",
-              fontWeight: "bold",
-            }}
-          >
-            <div>To : {singleDataJson?.trader_name}</div>
-            <div>Ph : {singleDataJson?.phone || ""}</div>
-          </div>
-
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "10px",
-            }}
-          >
-            <thead>
-              <tr>
-                {["HSN", "Particulars", "Qty", "Rate", "Tax %", "Amount"].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      style={{
-                        border: "1px solid #000",
-                        padding: "6px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        background: "#f5f5f5",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ),
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ border: "1px solid #000", padding: "6px" }}>
-                  300390
-                </td>
-                <td style={{ border: "1px solid #000", padding: "6px" }}>
-                  {singleDataJson?.flower_type_name}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  {singleDataJson?.quantity}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {Number(singleDataJson?.per_quantity || 0).toFixed(2)}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  18%
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {Number(singleDataJson?.sub_amount || 0).toFixed(2)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div
-            style={{
-              marginTop: "10px",
-              width: "40%",
-              marginLeft: "auto",
-              fontWeight: "bold",
-            }}
-          >
-            {[
-              ["Total Before Tax", "2923.72"],
-              ["CGST", "263.14"],
-              ["SGST", "263.14"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "4px 0",
-                }}
-              >
-                <span>{label}</span>
-                <span>₹{value}</span>
-              </div>
-            ))}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingTop: "6px",
-                marginTop: "6px",
-                borderTop: "2px solid #000",
-                fontSize: "14px",
-              }}
-            >
-              <span>Grand Total</span>
-              <span>₹3450.00</span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "20px", fontSize: "11px" }}>
-            <div>
-              <strong>Rupees :</strong> Three Thousand Four Hundred And Fifty
-              Only
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: "40px",
-                fontWeight: "bold",
-              }}
-            >
-              <div>Customer Signature</div>
-              <div>Authorised Signatory</div>
-            </div>
-          </div>
-        </div>
-      </div>
-*/}
 
       <div style={{ display: "none" }}>
         <div

@@ -746,14 +746,14 @@ const handlePrintAll = () => {
               </Typography>
       
               <Typography variant="button" fontWeight={700}>
-                Commission Amt :{" "}
+                Luggage Amt :{" "}
                 <span
                   style={{
                     color:
                       theme_org?.palette?.mode === "dark" ? "#4cca16" : "#058158",
                   }}
                 >
-                ₹  {totalData?.total_commission?.toFixed(2)}
+                ₹  {totalData?.luggage?.toFixed(2)}
                 </span>
               </Typography>
       

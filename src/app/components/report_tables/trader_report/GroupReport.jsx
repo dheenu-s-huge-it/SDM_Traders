@@ -196,9 +196,9 @@ const GroupReport = () => {
           Number(item.sub_amount || 0).toFixed(2)
         );
 
-      if (selectedItems.includes("Commission Amount"))
-        formattedData["Commission Amount"] = String(
-          Number(item.commission_amount || 0).toFixed(2)
+      if (selectedItems.includes("Luggage Amount"))
+        formattedData["Luggage Amount"] = String(
+          Number(item.luggage || 0).toFixed(2)
         );
 
       if (selectedItems.includes("Total Amount"))
@@ -216,7 +216,7 @@ const GroupReport = () => {
     const summaryFields = [
       "Quantity",
       "Net Total",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
     ];
     const PDFData = filterDataSelectedData(data, selectedLabels);
@@ -248,7 +248,7 @@ const GroupReport = () => {
         const summaryFields = [
           "Quantity",
           "Net Total",
-          "Commission Amount",
+          "Luggage Amount",
           "Total Amount",
         ];
         const PDFData = filterDataSelectedData(data, selectedLabels);
@@ -288,7 +288,7 @@ const GroupReport = () => {
     const summaryFields = [
       "Quantity",
       "Net Total",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
     ];
     // Calculate totals
@@ -587,8 +587,8 @@ const GroupReport = () => {
     },
     {
       id: 5,
-      label: `Commission Amount`,
-      value: "commission_amount",
+      label: `Luggage Amount`,
+      value: "luggage",
     },
     {
       id: 6,
@@ -651,11 +651,11 @@ const GroupReport = () => {
           td: (
             <Box>
               <Typography fontSize="14px">
-                {Number(item.commission_amount || 0).toFixed(2)}
+                {Number(item.luggage || 0).toFixed(2)}
               </Typography>
             </Box>
           ),
-          label: "Commission Amount",
+          label: "Luggage Amount",
           id: 5,
         },
         {
@@ -682,7 +682,7 @@ const GroupReport = () => {
     { value: 0, label: "S.No" },
     { value: 1, label: "Quantity" },
     { value: 2, label: "Total" },
-    { value: 3, label: "Commission Amount" },
+    { value: 3, label: "Luggage Amount" },
     { value: 4, label: "Total Amount" },
     { value: 5, label: "Group Type" },
     // { value: 6, label: "Price Per Quantity" },
@@ -1226,12 +1226,12 @@ const GroupReport = () => {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    <span> Commission: </span>
+                    <span> Luggage: </span>
                     <span style={{ fontWeight: "600" }}>
                       ₹
                       {traderWeekData.trader_statement_data
                         ?.reduce(
-                          (sum, item) => sum + (item.commission_amount || 0),
+                          (sum, item) => sum + (item.luggage || 0),
                           0
                         )
                         .toFixed(2)}

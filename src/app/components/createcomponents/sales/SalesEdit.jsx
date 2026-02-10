@@ -48,112 +48,58 @@ function SalesEdit({ Header, route_back }) {
 
   const token = Cookies.get("token");
 
-  const [commission, setCommission] = useState(0);
-  const fetchCommission = async () => {
-    try {
-      const response = await axiosGet.get(
-        `get_commission_value?user_token=${token}`
-      );
-
-      if (response.data.action === "success") {
-        setCommission(response.data.user_data?.commission_percentage || 0);
-      } else {
-        setError({
-          status: "error",
-          message: response.data.message || "Failed to fetch commission.",
-        });
-      }
-    } catch (err) {
-      setError({
-        status: "error",
-        message: "Network error while fetching commission.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchCommission();
-  }, [token]);
+  const [luggageValue, setluggageValue] = useState(0);
 
   const [dateOfSelling, setdateOfSelling] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    moment(new Date()).format("YYYY-MM-DD"),
   );
   const [timeOfSelling, settimeOfSelling] = useState("");
   const [flowerTypeID, setflowerTypeID] = useState("");
   const [flowerType, setflowerType] = useState("");
-  const [cashTypeID, setcashTypeID] = useState(1);
-  const [cashTypeName, setcashTypeName] = useState("Credit");
   const [traderID, settraderID] = useState("");
   const [traderName, settraderName] = useState("");
-  const [farmerID, setfarmerID] = useState("");
-  const [farmerName, setfarmerName] = useState("");
   const [quantityValue, setquantityValue] = useState("");
   const [pricePerQuantity, setpricePerQuantity] = useState("");
-  const [discountValue, setdiscountValue] = useState("");
   const [sumAmount, setsumAmount] = useState("");
   const [totalAmount, settotalAmount] = useState("");
-  const [tollAmount, settollAmount] = useState("");
-  const [tollPriceData, settollPriceData] = useState([]);
 
-  const [premiumAmount, setpremiumAmount] = useState("");
-  const [premiumStatus, setpremiumStatus] = useState(0);
+  const [groupId, setGroupId] = useState("");
+
+  const calculateValues = (qty, price, luggage) => {
+    const q = Number(qty) || 0;
+    const p = Number(price) || 0;
+    const l = Number(luggage) || 0;
+
+    const net = q * p;
+    const total = net + l;
+
+    settotalAmount(parseFloat(total.toFixed(2)));
+  };
 
   const HandleChangeQuantity = (event) => {
     let value = event.target.value;
     if (/^\d*\.?\d{0,2}$/.test(value)) {
-      if (Number(value) >= 0) {
-        setquantityValue(value);
-        const amountValue = Number(value) * Number(pricePerQuantity || 0);
-        const discount =
-          Number(amountValue) * (Number(discountValue || 0) / 100);
-        const sumamount = amountValue - discount;
-        const premium = Number(premiumAmount || 0) * Number(value);
-        const sumPremium = sumamount + Number(premium);
-        const toll_discount =
-          Number(pricePerQuantity || 0) * (Number(discountValue || 0) / 100);
-        const toll_tot_amount = Number(pricePerQuantity || 0) - toll_discount;
-        const premium_tot_amount = Number(
-          toll_tot_amount + Number(premiumAmount || 0)
-        ).toFixed(0);
-
-        const matchingToll = tollPriceData?.find(
-          (item) =>
-            premium_tot_amount >= item.from_amount &&
-            premium_tot_amount <= item.to_amount
-        );
-        const tollamount = matchingToll
-          ? matchingToll.price * Number(value)
-          : 0;
-        settollAmount(tollamount.toFixed(2));
-
-        let totalamount = sumPremium - Number(tollamount);
-        let commission_amount = sumPremium * (Number(commission || 0) / 100);
-        totalamount = totalamount - commission_amount;
-
-        setsumAmount(parseFloat(commission_amount.toFixed(2)));
-        settotalAmount(parseFloat(totalamount.toFixed(2)));
-      }
+      setquantityValue(value);
+      calculateValues(value, pricePerQuantity, luggageValue);
     }
   };
 
   const HandleChangePricePerQuantity = (event) => {
     let value = event.target.value;
     if (/^\d*\.?\d{0,2}$/.test(value)) {
-      if (Number(value) >= 0) {
-        setpricePerQuantity(event.target.value);
-        const amountValue =
-          Number(event.target.value) * Number(quantityValue || 0);
-
-        let totalamount = amountValue;
-        let commission_amount = amountValue * (Number(commission || 0) / 100);
-        let totalamountvalue = totalamount - commission_amount;
-
-        setsumAmount(parseFloat(commission_amount.toFixed(2)));
-        settotalAmount(parseFloat(totalamountvalue.toFixed(2)));
-      }
+      setpricePerQuantity(value);
+      calculateValues(quantityValue, value, luggageValue);
     }
   };
+
+    const HandleChangeLuggage = (event) => {
+    let value = event.target.value;
+    if (/^\d*\.?\d{0,2}$/.test(value)) {
+      setluggageValue(value);
+      calculateValues(quantityValue, pricePerQuantity, value);
+    }
+  };
+
   const handleChangeDateofSelling = (event) => {
     const formattedDate = moment(event.target.value).format("YYYY-MM-DD");
     setdateOfSelling(formattedDate);
@@ -186,10 +132,10 @@ function SalesEdit({ Header, route_back }) {
       setflowerType("");
     }
   };
-  const [farmerMaster, setfarmerMaster] = useState([]);
+  const [traderMaster, settraderMaster] = useState([]);
 
-  const HandleFarmerMaster = () => {
-    fetchDateSingle("employee_get", setfarmerMaster, {
+  const HandleTraderMaster = () => {
+    fetchDateSingle("employee_get", settraderMaster, {
       access_token: token,
       search_input: "",
       from_date: "",
@@ -202,25 +148,21 @@ function SalesEdit({ Header, route_back }) {
     });
   };
 
-  const ChangeFarmerMaster = (event, value) => {
+  const ChangeTraderMaster = (event, value) => {
     if (value != null) {
-      setfarmerID(value.data_uniq_id);
-      setfarmerName(value.nick_name);
+      settraderID(value.data_uniq_id);
+      settraderName(value.trader_name);
     } else {
-      setfarmerID("");
-      setfarmerName("");
+      settraderID("");
+      settraderName("");
     }
   };
-
-  const [balanceAmount, setbalanceAmount] = useState("");
-  const [paidAmount, setpaidAmount] = useState("");
-
   const HandleEditGET = (value) => {
     if (value !== undefined && value !== null) {
       try {
         axiosGet
           .get(
-            `purchaseorder/purchaseorder/get?access_token=${token}&data_uniq_id=${value}`
+            `sales/sales_order/get?access_token=${token}&data_uniq_id=${value}`,
           )
           .then((response) => {
             const data = response.data.data;
@@ -229,28 +171,14 @@ function SalesEdit({ Header, route_back }) {
               settimeOfSelling(data[0]?.time_wise_selling);
               setflowerTypeID(data[0]?.flower_type_id);
               setflowerType(data[0]?.flower_type_name);
-              setcashTypeID(
-                data[0]?.payment_type === "Credit" &&
-                  data[0]?.payment_type === "credit"
-                  ? 1
-                  : 2
-              );
-              setcashTypeName(data[0]?.payment_type);
               settraderID(data[0]?.trader_id);
               settraderName(data[0]?.trader_name);
-              setfarmerID(data[0]?.farmer_id);
-              setfarmerName(data[0]?.farmer_name);
               setquantityValue(data[0]?.quantity);
               setpricePerQuantity(data[0]?.per_quantity);
-              setdiscountValue(data[0]?.discount);
-              setsumAmount(data[0]?.commission_amount);
+              setsumAmount(data[0]?.total_amount);
+              setluggageValue(data[0]?.luggage);
               settotalAmount(data[0]?.net_amount);
-              settollAmount(data[0]?.toll_amount);
-              settollPriceData(data[0]?.toll_price_data);
-              setpaidAmount(data[0]?.paid_amount);
-              setbalanceAmount(data[0]?.balance_amount);
-              setpremiumStatus(data[0]?.premium_trader);
-              setpremiumAmount(data[0]?.premium_amount);
+              setGroupId(data[0]?.group_id);
             }
           });
       } catch (error) {
@@ -261,7 +189,7 @@ function SalesEdit({ Header, route_back }) {
 
   useEffect(() => {
     HandleFlowerTypeMaster();
-    HandleFarmerMaster();
+    HandleTraderMaster();
     HandleEditGET(USER_ID);
   }, [USER_ID]);
 
@@ -275,28 +203,19 @@ function SalesEdit({ Header, route_back }) {
         access_token: token,
         data_uniq_id: USER_ID,
         date_wise_selling: dateOfSelling,
-        farmer_id: farmerID,
-        farmer_name: farmerName,
-        payment_type: cashTypeName,
-        sub_amount: Number(sumAmount),
-        toll_amount: Number(tollAmount),
-        total_amount: Number(totalAmount),
-        flower_type_id: flowerTypeID,
-        flower_type_name: flowerType,
+        time_wise_selling: timeOfSelling,
         trader_id: traderID,
         trader_name: traderName,
+        flower_type_id: flowerTypeID,
+        flower_type_name: flowerType,
         quantity: Number(quantityValue),
         per_quantity: Number(pricePerQuantity),
-        discount: Number(discountValue),
-        time_wise_selling: timeOfSelling,
-        paid_amount: Number(paidAmount),
-        balance_amount: balanceAmount,
-        premium_amount: Number(premiumAmount),
-        premium_trader: premiumStatus,
+        luggage: Number(luggageValue),
+        group_id: groupId,
       };
       try {
         axiosPost
-          .post("purchaseorder/purchaseorder/edit", jsonStructure)
+          .post("sales/sales_order/edit", jsonStructure)
           .then((response) => {
             if (response.data.action === "success") {
               onClickCancel();
@@ -481,30 +400,30 @@ function SalesEdit({ Header, route_back }) {
         <Grid container spacing={6}>
           <Grid item xs={12} sm={4}>
             <Controller
-              name="farmer"
+              name="trader"
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
                 <>
-                  {renderLabel("Farmer", true)}
+                  {renderLabel("Trader", true)}
                   <CustomAutoComplete
                     id="select-status"
-                    label="Farmer"
-                    error={!!errorsMessage.farmer_id}
+                    label="Trader"
+                    error={!!errorsMessage.trader_id}
                     helperText={
-                      errorsMessage.farmer_id ? errorsMessage.farmer_id : ""
+                      errorsMessage.trader_id ? errorsMessage.trader_id : ""
                     }
-                    value={farmerName}
+                    value={traderMaster.find((item) => item.data_uniq_id === traderID) || null}
                     onChange={(e, v) => {
-                      ChangeFarmerMaster(e, v);
-                      if (errorsMessage.farmer_id) {
+                      ChangeTraderMaster(e, v);
+                      if (errorsMessage.trader_id) {
                         seterrorsMessage((prev) => ({
                           ...prev,
-                          farmer_id: "",
+                          trader_id: "",
                         }));
                       }
                     }}
-                    options={farmerMaster}
+                    options={traderMaster}
                     option_label={(option) =>
                       typeof option === "string"
                         ? option
@@ -587,18 +506,18 @@ function SalesEdit({ Header, route_back }) {
         <Grid container spacing={6}>
           <Grid item xs={12} sm={4}>
             <Controller
-              name="sum_amount"
+              name="luggage"
               control={control}
               render={({ field }) => (
                 <>
-                  {renderLabel("Commission Amount", false)}
+                  {renderLabel("Luggage Amount", false)}
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled
                     variant="outlined"
-                    value={sumAmount.toLocaleString("en-IN")}
-                    placeholder="Commission Amount"
+                    value={luggageValue}
+                    onChange={HandleChangeLuggage}
+                    placeholder="Luggage Amount"
                     // sx={{ mb: 5 }}
                   />
                 </>

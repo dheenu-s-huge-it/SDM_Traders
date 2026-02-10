@@ -194,6 +194,7 @@ function SalesCreate({ Header, route_back }) {
         quantity: Number(quantityValue),
         per_quantity: Number(pricePerQuantity),
         group_id: traderID,
+        luggage: Number(luggageValue)
       };
       try {
         axiosPost

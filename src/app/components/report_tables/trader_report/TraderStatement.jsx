@@ -228,9 +228,9 @@ const TraderStatement = () => {
         formattedData["Net total"] = String(
           Number(item.net_amount || 0).toFixed(2)
         );
-      if (selectedItems.includes("Commission Amount"))
-        formattedData["Commission Amount"] = String(
-          Number(item.commission_amount || 0).toFixed(2)
+      if (selectedItems.includes("Luggage Amount"))
+        formattedData["Luggage Amount"] = String(
+          Number(item.luggage || 0).toFixed(2)
         );
       if (selectedItems.includes("Total Amount"))
         formattedData["Total Amount"] = String(
@@ -251,7 +251,7 @@ const TraderStatement = () => {
       "Quantity",
       "Price Per Quantity",
       "Net total",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
     ];
     const PDFData = filterDataSelectedData(data, selectedLabels, true);
@@ -274,7 +274,7 @@ const TraderStatement = () => {
   const fetchExportData = async (type) => {
     axiosGet
       .get(
-        `finance/farmerstatement/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${customerNameID}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${customerNameID}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
       )
       .then((response) => {
         let data = response.data.data[0]?.trader_statement || [];
@@ -284,7 +284,7 @@ const TraderStatement = () => {
           "Quantity",
           "Price Per Quantity",
           "Net total",
-          "Commission Amount",
+          "Luggage Amount",
           "Total Amount",
         ];
         const PDFData = filterDataSelectedData(data, selectedLabels, true);
@@ -315,7 +315,7 @@ const TraderStatement = () => {
   //   const workbook = XLSX.utils.book_new();
   //   XLSX.utils.book_append_sheet(workbook, worksheet, "User");
 
-  //   XLSX.writeFile(workbook, `FarmerStatement-Details-${formattedDate}.xlsx`);
+  //   XLSX.writeFile(workbook, `traderstatement-Details-${formattedDate}.xlsx`);
   // };
 
   const fetchExcelData = (data) => {
@@ -326,7 +326,7 @@ const TraderStatement = () => {
       "Quantity",
       "Price Per Quantity",
       "Net total",
-      "Commission Amount",
+      "Luggage Amount",
       "Total Amount",
     ];
 
@@ -489,7 +489,7 @@ const TraderStatement = () => {
 
     axiosGet
       .get(
-        `finance/farmerstatement/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${min}&max_quantity=${max}&min_price=${minprice}&max_price=${maxprice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${min}&max_quantity=${max}&min_price=${minprice}&max_price=${maxprice}`
       )
       .then((response) => {
         setData(response.data.data);
@@ -527,7 +527,7 @@ const TraderStatement = () => {
     setIsLoading(true);
     axiosGet
       .get(
-        `finance/farmerstatementfilter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`
+        `finance/traderstatementfilter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`
       )
       .then((response) => {
         setFilterData(response.data.data);
@@ -555,7 +555,7 @@ const TraderStatement = () => {
     }
     axiosGet
       .get(
-        `finance/farmerstatement/get?access_token=${ACCESS_TOKEN}&has_limit=0&page=${pageNumber}&items_per_page=10000&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&has_limit=0&page=${pageNumber}&items_per_page=10000&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
       )
       .then((response) => {
         setPrintData(response.data.data);
@@ -665,8 +665,8 @@ const TraderStatement = () => {
     },
     {
       id: 13,
-      label: "Commission Amount",
-      value: "commission_amount",
+      label: "Luggage Amount",
+      value: "luggage",
       fieldName: "",
     },
     {
@@ -755,11 +755,11 @@ const TraderStatement = () => {
           td: (
             <Box>
               <Typography fontSize="14px">
-                {Number(item.commission_amount || 0).toFixed(2)}
+                {Number(item.luggage || 0).toFixed(2)}
               </Typography>
             </Box>
           ),
-          label: "Commission Amount",
+          label: "Luggage Amount",
           id: 13,
         },
         {
@@ -831,7 +831,7 @@ const TraderStatement = () => {
     { value: 2, label: "Quantity" },
     { value: 3, label: "Price Per Quantity" },
     { value: 4, label: "Net Total" },
-    { value: 5, label: "Commission Amount" },
+    { value: 5, label: "Luggage Amount" },
     { value: 6, label: "Total Amount" },
     { value: 7, label: "Status" },
   ];
@@ -845,7 +845,7 @@ const TraderStatement = () => {
         label: item.label,
       };
       axiosPost
-        .post("finance/farmerstatementfilter/create", jsonData)
+        .post("finance/traderstatementfilter/create", jsonData)
         .then((response) => {
           setEffectToggle(!effectToggle);
           setAlertMessage("Updated successfully.");
@@ -867,7 +867,7 @@ const TraderStatement = () => {
           label: item.label,
         };
         axiosPost
-          .post("finance/farmerstatementfilter/create", uncheckData)
+          .post("finance/traderstatementfilter/create", uncheckData)
           .then((response) => {
             setEffectToggle(!effectToggle);
             setAlertMessage("Updated successfully.");
@@ -896,7 +896,7 @@ const TraderStatement = () => {
       data_ids: [singleDataJson?.data_uniq_id],
     };
     axiosPost
-      .post(`purchaseorder/purchaseorder/delete`, jsonData)
+      .post(`sales/sales_order/delete`, jsonData)
       .then((response) => {
         setEffectToggle(!effectToggle);
         handleDeleteDialogClose();
@@ -1358,7 +1358,7 @@ const TraderStatement = () => {
                   paddingRight: "15px",
                 }}
               >
-                ₹{Number(singleDataJson.commission_amount || 0).toFixed(2)}
+                ₹{Number(singleDataJson.luggage || 0).toFixed(2)}
               </div>
             </div>
             <div
@@ -1582,13 +1582,13 @@ const TraderStatement = () => {
               >
                 {[
                   { label: "Total Amount:", value: group[0]?.sub_amount },
-                  { label: "Commission:", value: group[0]?.commission_amount },
+                  { label: "Luggage:", value: group[0]?.luggage },
                   {
                     label: "Net Total:",
                     value:
                       Math.round(
                         ((Number(group[0]?.sub_amount) || 0) -
-                          (Number(group[0]?.commission_amount) || 0)) /
+                          (Number(group[0]?.luggage) || 0)) /
                           10
                       ) * 10,
                   },

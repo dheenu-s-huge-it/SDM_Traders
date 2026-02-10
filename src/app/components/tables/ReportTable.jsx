@@ -773,14 +773,14 @@ const ReportTable = ({
               </Typography>
 
               <Typography variant="button" fontWeight={700}>
-                Commission Amt :{" "}
+                Luggage Amt :{" "}
                 <span
                   style={{
                     color:
                       theme_org?.palette?.mode === "dark" ? "#4cca16" : "#058158",
                   }}
                 >
-                  ₹  {totalData?.commission_amount?.toFixed(2) || "0.00"}
+                  ₹  {totalData?.luggage?.toFixed(2) || "0.00"}
                 </span>
               </Typography>
 
