@@ -36,6 +36,7 @@ import { useReactToPrint } from "react-to-print";
 import ReusableModal from "../../../components/common-components/Modal";
 import PaidStatusModal from "../../../components/common-components/PaidStatusModal";
 import SalesTable from "../../../components/tables/SalesTable";
+import Logo from "../../../../@core/svg/Logo";
 
 const AllSales = () => {
   useEffect(() => {
@@ -81,6 +82,7 @@ const AllSales = () => {
 
   const [dateTitle, setDateTitle] = useState("Choose Date Of Selling");
   const [isDateSelected, setIsDateSelected] = useState(false);
+
 
   const theme = useTheme();
 
@@ -1237,6 +1239,7 @@ const AllSales = () => {
   const componentRef = useRef();
 
   const handlePrint = () => {
+    handleClose2();
     const printContent = componentRef.current.innerHTML;
     const iframe = document.createElement("iframe");
     iframe.style.display = "none";
@@ -1244,58 +1247,95 @@ const AllSales = () => {
     const doc = iframe.contentWindow.document;
     doc.open();
     doc.write(`
-<html>
-<head>
-<title>Invoice Print</title>
-<style>
-  @page {
-    size: ${paperSize === "A5" ? "A5" : "A4"};
-    margin: 8mm;
-  }
+    <html>
+      <head>
+        <title>Invoice</title>
+        <style>
+          @font-face {
+            font-family: "Nimbus Mono L Bold";
+            src: url("/Nimbus Mono L Bold.ttf") format("truetype");
+            font-weight: bold;
+            font-style: normal;
+          }
+          
+          @page {
+            size: auto;
+            margin: 0mm; 
+          }
 
-  html, body {
-    height: 100%;
-  }
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+          }
 
-  body {
-    margin: 0;
-    padding: 0;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    font-family: 'Segoe UI', Arial, sans-serif;
-  }
+          body {
+            font-family: "Nimbus Mono L Bold", monospace !important;
+            -webkit-print-color-adjust: exact;
+          }
 
-  .print-page {
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+          .print-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding: 10mm;
+          }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+          /* The Wrapper fills the remaining space */
+          .items-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+          }
 
-  th, td {
-    font-size: 11px;
-    padding: 4px;
-  }
+          .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            flex: 1; /* Forces table to grow to the bottom */
+            table-layout: fixed; /* Ensures column widths are respected */
+          }
 
-  /* Prevent weird page cuts */
-  table, tr, td {
-    page-break-inside: avoid;
-  }
+          .items-table th, .items-table td {
+            border: 1px solid #000;
+            padding: 6px 4px;
+            word-wrap: break-word; /* Prevents text overflow */
+            overflow: hidden;
+          }
 
-</style>
-</head>
-<body>
-  <div style="transform: scale(${scale}); transform-origin: top left;">
-    ${printContent}
-  </div>
-</body>
-</html>
-`);
+          .items-table thead th {
+            background-color: #f2f2f2 !important;
+            font-size: 11px;
+          }
 
+          /* The magic row: it consumes all remaining vertical space */
+          .spacer-row td {
+            height: 100%;
+            border-bottom: 1px solid #000;
+          }
+
+          /* Ensure table rows don't break awkwardly across pages */
+          tr {
+            page-break-inside: avoid;
+          }
+
+          .footer-section {
+            page-break-inside: avoid;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-container">
+          ${printContent}
+        </div>
+      </body>
+    </html>
+  `);
     doc.close();
 
     iframe.onload = function () {
@@ -1303,9 +1343,13 @@ const AllSales = () => {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
         document.body.removeChild(iframe);
-      }, 500);
+      }, 250);
     };
   };
+
+
+  const grantTotalAmount = singleDataJson.luggage + singleDataJson.total_amount;
+
 
   return (
     <>
@@ -1407,194 +1451,136 @@ const AllSales = () => {
         <div
           ref={componentRef}
           style={{
-            width: "210mm",
-            height: "297mm",
-            padding: "5mm",
-            border: "1px solid #000",
-            fontFamily: "'Segoe UI', Arial, sans-serif",
-            fontSize: "12px",
-            color: "#000",
-            backgroundColor: "#fff",
-            boxSizing: "border-box",
             display: "flex",
             flexDirection: "column",
+            width: "100%",
+            height: "100%",
           }}
         >
           {/* Header Section */}
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <tbody>
-              <tr>
-                <td
-                  style={{
-                    width: "25%",
-                    textAlign: "center",
-                    border: "1px solid #000",
-                    padding: "5px",
-                  }}
-                >
-                  <div
-                    style={{
-                      border: "2px solid #000",
-                      borderRadius: "50%",
-                      width: "45px",
-                      height: "45px",
-                      margin: "0 auto",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: "bold",
-                      fontSize: "12px",
-                    }}
-                  >
-                    சுரபி
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      marginTop: "4px",
-                      background: "#333",
-                      color: "#fff",
-                      padding: "1px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    ஸ்ரீ சுரபி அக்ரி சென்டர்
-                  </div>
-                </td>
-                <td
-                  style={{
-                    textAlign: "center",
-                    verticalAlign: "top",
-                    padding: "0 5px",
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: "0",
-                      fontSize: "18px",
-                      letterSpacing: "0.5px",
-                      fontWeight: "800",
-                    }}
-                  >
-                    SRI SURABI AGRI CENTRE
-                  </h2>
-                  <p
-                    style={{
-                      margin: "2px 0",
-                      fontSize: "10px",
-                      lineHeight: "1.1",
-                    }}
-                  >
-                    425, Mysore Trunk Road, RangaSamuthiram,
-                    Sathyamangalam-638402 Ph No : 04295222446
-                  </p>
-                  <p
-                    style={{
-                      margin: "2px 0",
-                      fontSize: "9px",
-                      fontWeight: "600",
-                    }}
-                  >
-                    FL No: ERD/STY/R-142/2018-21, S.L.No:1728/EDE/2015,
-                    P.L.No:STY41/2016-17
-                  </p>
-                  <strong style={{ fontSize: "11px" }}>
-                    GSTIN : 33BDXPC4945B1ZM
-                  </strong>
-                </td>
-                <td
-                  style={{
-                    width: "15%",
-                    textAlign: "right",
-                    verticalAlign: "top",
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                  }}
-                >
-                  Cash
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* Invoice Info Bar */}
-          <table
+          <section
             style={{
+              border: "1px solid #000",
+              borderBottom: "none",
               width: "100%",
-              borderCollapse: "collapse",
-              borderLeft: "1px solid #000",
-              borderRight: "1px solid #000",
+              margin: 0,
+              padding: "6px 0px",
+              boxSizing: "border-box", // Ensures padding doesn't push the border out
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              alignItems: "center",
             }}
           >
+            {/* Left Section: Logo */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: "20px",
+                height: "100px",
+                weight: "100px",
+              }}
+            >
+              <Logo />
+            </div>
+
+            {/* Middle Section: Company Information */}
+            <div style={{ textAlign: "center" }}>
+              <h1
+                style={{
+                  margin: "0 0 4px 0",
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  letterSpacing: "1px",
+                }}
+              >
+                S.D.M MAHENDRAN
+              </h1>
+
+              <p style={{ margin: "1px 0", fontSize: "13px" }}>
+                Karatoor Road, Sathyamangalam
+              </p>
+              <p style={{ margin: "1px 0", fontSize: "13px" }}>
+                Erode - 638401
+              </p>
+
+              <div style={{ marginTop: "2px", fontSize: "13px" }}>
+                <p style={{ margin: "0" }}>Ph.No: 94424 98222</p>
+                {/* Aligned below the first number as per sketch */}
+                <p style={{ margin: "0", paddingLeft: "42px" }}>80728 87930</p>
+              </div>
+
+              <p
+                style={{
+                  marginTop: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                }}
+              >
+                GST NO: 33BDXPC4945B1ZM
+              </p>
+            </div>
+          </section>
+
+          <table
+            style={{
+              border: "1px solid #000",
+              borderBottom: "none",
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <colgroup>
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "90%" }} />
+            </colgroup>
             <tbody>
-              <tr>
-                <td
-                  colSpan={2}
-                  style={{
-                    padding: "4px",
-                    borderTop: "1px solid #000",
-                    borderBottom: "1px solid #000",
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    fontSize: "14px",
-                  }}
-                >
-                  INVOICE
-                </td>
-              </tr>
-              <tr>
+              <tr
+                style={{
+                  border: "1px solid #000",
+                }}
+              >
                 <td
                   style={{
-                    width: "60%",
-                    borderRight: "1px solid #000",
                     padding: "3px",
-                    fontWeight: "bold",
-                    fontSize: "11px",
+                    fontWeight: "normal",
+                    textAlign: "left",
                   }}
                 >
                   No : 19065
                 </td>
+
                 <td
                   style={{
-                    padding: "3px",
-                    fontWeight: "bold",
-                    fontSize: "11px",
+                    textAlign: "center",
+                    fontWeight: "normal",
                   }}
                 >
-                  Date :{" "}
-                  {singleDataJson?.date_wise_selling
-                    ? new Date(singleDataJson.date_wise_selling)
-                        .toLocaleDateString("en-GB")
-                        .replace(/\//g, "-")
-                    : ""}
+                  TRADER BILL
+                </td>
+
+                <td
+                  style={{
+                    fontWeight: "normal",
+                    textAlign: "right",
+                  }}
+                >
+                  BILL DATE : 10-02-2026
                 </td>
               </tr>
+
               <tr>
-                <td
-                  colSpan={2}
-                  style={{
-                    borderTop: "1px solid #000",
-                    borderBottom: "1px solid #000",
-                    padding: "4px 6px",
-                    position: "relative",
-                    fontSize: "11px",
-                  }}
-                >
-                  <span style={{ fontWeight: "bold" }}>To:</span> &nbsp;
-                  <strong style={{ fontSize: "12px" }}>
-                    {singleDataJson?.trader_name ||
-                      "SHANMUGAM.ATHIYAPPA KAVUNDAN PUTHUR"}
-                  </strong>
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: "6px",
-                      bottom: "4px",
-                      fontWeight: "bold",
-                      fontSize: "10px",
-                    }}
-                  >
+                <td colSpan={3} style={{ padding: "4px 6px" }}>
+                  {/* First Line */}
+                  <div>
+                    <strong>To:</strong>{" "}
+                    {singleDataJson?.trader_name || "Saiii Tharaaa"}
+                  </div>
+
+                  {/* Second Line - Right aligned */}
+                  <div style={{ textAlign: "right" }}>
                     PH No : {singleDataJson?.phone || "9865044455"}
                   </div>
                 </td>
@@ -1603,287 +1589,162 @@ const AllSales = () => {
           </table>
 
           {/* Items Table */}
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              borderLeft: "1px solid #000",
-              borderRight: "1px solid #000",
-              borderBottom: "1px solid #000",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  textAlign: "center",
-                  fontSize: "11px",
-                  borderBottom: "1px solid #000",
-                }}
-              >
-                <th
-                  style={{
-                    borderRight: "1px solid #000",
-                    width: "15%",
-                    padding: "4px",
-                  }}
-                >
-                  HSN
-                </th>
-                <th style={{ borderRight: "1px solid #000", width: "45%" }}>
-                  Particulars
-                </th>
-                <th style={{ borderRight: "1px solid #000", width: "10%" }}>
-                  Qty / Pcs
-                </th>
-                <th style={{ borderRight: "1px solid #000", width: "10%" }}>
-                  Rate
-                </th>
-                <th style={{ borderRight: "1px solid #000", width: "8%" }}>
-                  Tax%
-                </th>
-                <th style={{ width: "12%" }}>Taxable Amount</th>
-              </tr>
-            </thead>
-            <tbody style={{ fontSize: "11px" }}>
-              <tr style={{ verticalAlign: "top" }}>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    padding: "8px",
-                    textAlign: "center",
-                  }}
-                >
-                  {/* Example HSN */}
-                  38089199
-                </td>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    padding: "6px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {singleDataJson?.flower_type_name || "KUNOICHI - 250 ML"}
-                </td>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  {singleDataJson?.quantity || "1"}
-                </td>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "right",
-                  }}
-                >
-                  {Number(singleDataJson?.per_quantity || 1822.03).toFixed(2)}
-                </td>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    padding: "6px",
-                    textAlign: "center",
-                  }}
-                >
-                  18.0
-                </td>
-                <td style={{ padding: "6px", textAlign: "right" }}>
-                  {Number(singleDataJson?.sub_amount || 1822.03).toFixed(2)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="items-wrapper" style={{ borderTop: "none" }}>
+            <table className="items-table" style={{ borderTop: "none" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "15%" }}>DATE</th>
+                  <th style={{ width: "35%" }}>PARTICULARS</th>
+                  <th style={{ width: "10%" }}>QTY</th>
+                  <th style={{ width: "12%" }}>RATE</th>
+                  <th style={{ width: "15%" }}>AMT</th>
+                  <th style={{ width: "15%" }}>LUGGAGE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ fontSize: "12px", textAlign: "center" }}>
+                  <td>{singleDataJson.date_wise_selling}</td>
+                  <td style={{ textAlign: "left", fontWeight: "normal" }}>
+                    {singleDataJson?.flower_type_name || "Not found"}
+                  </td>
+                  <td>{singleDataJson.quantity}</td>
+                  <td>{singleDataJson.per_quantity}</td>
+                  <td>{singleDataJson.total_amount}</td>
+                  <td>{singleDataJson.luggage}</td>
+                </tr>
 
-          {/* Calculations Section */}
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              borderLeft: "1px solid #000",
-              borderRight: "1px solid #000",
-              borderBottom: "1px solid #000",
-            }}
-          >
-            <tbody>
-              <tr
-                style={{ borderBottom: "1px solid #000", fontWeight: "bold" }}
-              >
-                <td
-                  style={{
-                    width: "40%",
-                    borderRight: "1px solid #000",
-                    padding: "5px",
-                  }}
-                >
-                  E&OE. &nbsp;&nbsp;&nbsp;&nbsp; Total Qty :
-                </td>
-                <td style={{ width: "60%", textAlign: "center" }}>
-                  {singleDataJson?.quantity || "1"}
-                </td>
-              </tr>
-              <tr>
-                <td
-                  style={{
-                    borderRight: "1px solid #000",
-                    verticalAlign: "top",
-                    padding: "0",
-                  }}
-                >
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <tbody>
-                      <tr>
-                        <td style={{ padding: "4px 8px" }}>Total Before Tax</td>
-                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
-                          2923.72
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: "4px 8px" }}>CGST</td>
-                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
-                          263.14
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: "4px 8px" }}>SGST</td>
-                        <td style={{ textAlign: "right", paddingRight: "8px" }}>
-                          263.14
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          colSpan={2}
-                          style={{
-                            border: "1px solid #000",
-                            padding: "10px",
-                            margin: "5px",
-                            textAlign: "center",
-                            fontWeight: "bold",
-                            fontSize: "16px",
-                          }}
-                        >
-                          ஞாயிறு விடுமுறை
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td
-                  style={{
-                    verticalAlign: "top",
-                    textAlign: "right",
-                    padding: "8px",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      marginBottom: "8px",
-                      color: "#444",
-                      lineHeight: "1.2",
-                    }}
-                  >
-                    2923.72@GST 18% = 526.27 (CGST@9%=263.14, SGST@9%=263.14,
-                    IGST@0%=0.0)
-                  </div>
-                  <div
-                    style={{
-                      borderBottom: "1px solid #000",
-                      paddingBottom: "3px",
-                      marginBottom: "3px",
-                    }}
-                  >
-                    Rounded off <span style={{ marginLeft: "40px" }}>.01</span>
-                  </div>
-                  <div style={{ fontSize: "16px", fontWeight: "bold" }}>
-                    Grand Total :{" "}
-                    <span style={{ marginLeft: "10px" }}>₹ 3450.00</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* Footer Section */}
-          <div
-            style={{
-              padding: "4px 6px",
-              borderLeft: "1px solid #000",
-              borderRight: "1px solid #000",
-              fontWeight: "bold",
-              fontSize: "11px",
-            }}
-          >
-            Rs: Three Thousand Four Hundred And Fifty Only.
+                {/* IMPORTANT: The Spacer Row */}
+                {/* Add this row after your map() or data row. It pushes the footer down. */}
+                <tr className="spacer-row">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
+          {/* Footer Section - This will now stay at the bottom */}
+          {/* GRAND TOTAL + TERMS SECTION */}
           <table
             style={{
               width: "100%",
               border: "1px solid #000",
-              fontSize: "10px",
-              flex: 1,
-              display: "table",
+              borderTop: "none",
+              borderCollapse: "collapse",
+              tableLayout: "fixed",
+              fontSize: "13px",
             }}
           >
-            <tbody style={{ height: "100%" }}>
-              <tr style={{ height: "100%" }}>
+            <colgroup>
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "35%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "15%" }} />
+            </colgroup>
+            <tr style={{ borderBottom: "1px solid #000" }}>
+              <td></td>
+              <td style={{ padding: "5px" }}>Total Qty</td>
+              <td style={{ padding: "5px", textAlign: "center" }}>{singleDataJson.quantity}</td>
+              <td></td>
+              <td style={{ padding: "5px", textAlign: "center" }}>{singleDataJson.total_amount}</td>
+              <td style={{ padding: "5px", textAlign: "center" }}>{singleDataJson.luggage}</td>
+            </tr>
+          </table>
+          <table
+            style={{
+              width: "100%",
+              border: "1px solid #000",
+              borderTop: "none",
+              borderCollapse: "collapse",
+              tableLayout: "auto",
+              fontSize: "13px",
+            }}
+          >
+            <tbody>
+              {/* TERMS + GRAND TOTAL */}
+              <tr>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: "6px",
+                    verticalAlign: "top",
+                    borderRight: "1px solid #000",
+                    borderBottom: "1px solid #000",
+                  }}
+                >
+                  1. GOOD ONCE SOLD CANNOT BE TAKEN BACK.
+                  <br />
+                  <span style={{ whiteSpace: "nowrap" }}>
+                    2. SUBJECT TO MARKET RISK.
+                  </span>
+                </td>
+
                 <td
                   style={{
-                    width: "55%",
-                    borderRight: "1px solid #000",
-                    padding: "4px 6px",
-                    lineHeight: "1.3",
-                    height: "100%",
+                    padding: "6px",
+                    verticalAlign: "middle",
+                    fontWeight: "bold",
+                    borderBottom: "1px solid #000",
+                    textAlign: "right",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  GRANT TOTAL: {grantTotalAmount}
+                </td>
+              </tr>
+
+              {/* AMOUNT IN WORDS */}
+              <tr>
+                <td
+                  colSpan={4}
+                  style={{ padding: "6px", borderBottom: "1px solid #000" }}
+                >
+                  <strong>Amount in Words :</strong> Rs: Three Thousand Four
+                  Hundred And Fifty Only.
+                </td>
+              </tr>
+
+              {/* SIGNATURE ROW */}
+              <tr>
+                <td
+                  colSpan={2}
+                  style={{
+                    padding: "30px 6px 6px 6px",
                     verticalAlign: "bottom",
                   }}
                 >
-                  1. GOOD ONCE SOLD CANNOT BE TAKEN BACK OR EXCHANGED 2. SUBJECT
-                  TO SATHYAMANGALAM JURISDICTION.
-                  <span
-                    style={{ fontWeight: "bold", textDecoration: "overline" }}
-                  >
-                    Customer Signature
-                  </span>
+                  Customer Signature
                 </td>
+
                 <td
+                  colSpan={2}
                   style={{
-                    textAlign: "center",
-                    padding: "4px 6px",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "flex-end",
+                    padding: "30px 6px 6px 6px",
+                    textAlign: "right",
+                    verticalAlign: "bottom",
                   }}
                 >
-                  <div style={{ fontWeight: "bold" }}>
-                    For SRI SURABI AGRI CENTRE
-                  </div>
-                  <div style={{ fontWeight: "bold" }}>Authorised Signatory</div>
+                  Authorised Signatory
                 </td>
               </tr>
             </tbody>
           </table>
 
+          {/* Tamil Note */}
           <div
-            style={{ textAlign: "center", fontSize: "9px", marginTop: "2px" }}
+            style={{
+              textAlign: "center",
+              fontSize: "10px",
+              marginTop: "5px",
+            }}
           >
-            Page No: 1
-            <p
-              style={{
-                fontSize: "9px",
-                margin: "1px 0",
-                fontStyle: "italic",
-                lineHeight: "1.2",
-              }}
-            >
-              இந்த பில்லில் உள்ள பொருள் விஷம் என்பது தெரியும் இதனை பயிர்
-              பாதுகாப்பிற்கு மட்டும் பயன்படுத்துவேன் என உறுதி கூறுகிறேன்.
-            </p>
+            ஒரு விவசாயியின் உழைப்பே ஆயிரம் மலர்களின் வாசனை.
           </div>
         </div>
       </div>

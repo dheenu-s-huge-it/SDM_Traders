@@ -35,6 +35,7 @@ import CustomTextField from "../../../../@core/components/mui/TextField";
 import moment from "moment";
 import SalesPrint from "../../common-components/SalesPrint";
 import DeleteSalesDialog from "../../common-components/DeleteSalesDialog";
+import Logo from "../../../../@core/svg/Logo";
 
 const TraderStatement = () => {
   const ACCESS_TOKEN = Cookies.get("token");
@@ -90,7 +91,7 @@ const TraderStatement = () => {
   }
 
   const [createdStartDate, setCreatedStartDate] = useState(
-    formatDate(eightDaysAgo)
+    formatDate(eightDaysAgo),
   );
   const [createdEndDate, setCreatedEndDate] = useState(formatDate(today));
 
@@ -218,23 +219,23 @@ const TraderStatement = () => {
       }
       if (selectedItems.includes("Quantity"))
         formattedData["Quantity"] = String(
-          Number(item.quantity || 0).toFixed(2)
+          Number(item.quantity || 0).toFixed(2),
         );
       if (selectedItems.includes("Price Per Quantity"))
         formattedData["Price Per Quantity"] = String(
-          Number(item.per_quantity || 0).toFixed(2)
+          Number(item.per_quantity || 0).toFixed(2),
         );
       if (selectedItems.includes("Net Total"))
         formattedData["Net total"] = String(
-          Number(item.net_amount || 0).toFixed(2)
+          Number(item.net_amount || 0).toFixed(2),
         );
       if (selectedItems.includes("Luggage Amount"))
         formattedData["Luggage Amount"] = String(
-          Number(item.luggage || 0).toFixed(2)
+          Number(item.luggage || 0).toFixed(2),
         );
       if (selectedItems.includes("Total Amount"))
         formattedData["Total Amount"] = String(
-          Number(item.total_amount || 0).toFixed(2)
+          Number(item.total_amount || 0).toFixed(2),
         );
       // if (selectedItems.includes("Balance Amount"))
       //   formattedData["B.Amt"] = String(
@@ -274,7 +275,7 @@ const TraderStatement = () => {
   const fetchExportData = async (type) => {
     axiosGet
       .get(
-        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${customerNameID}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&items_per_page=10000&search_input=${searchValue}&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&flower_type_id=${customerNameID}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`,
       )
       .then((response) => {
         let data = response.data.data[0]?.trader_statement || [];
@@ -406,7 +407,7 @@ const TraderStatement = () => {
   };
 
   const [fromDate, setFromDate] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    moment(new Date()).format("YYYY-MM-DD"),
   );
   const [toDate, setToDate] = useState(() => {
     // Calculate 7 days from today
@@ -456,7 +457,7 @@ const TraderStatement = () => {
       // Extract employee ID from the search input if it matches suggestion format
       const employeeId = searchInput.split("--")[0];
       const selectedEmployee = searchFilterData?.find(
-        (emp) => emp.user_id === employeeId
+        (emp) => emp.user_id === employeeId,
       );
 
       if (selectedEmployee) {
@@ -478,7 +479,7 @@ const TraderStatement = () => {
     minprice,
     maxprice,
     field = orderField,
-    type = orderType
+    type = orderType,
   ) => {
     let searchFinal = "";
     if (searchValue === undefined) {
@@ -489,7 +490,7 @@ const TraderStatement = () => {
 
     axiosGet
       .get(
-        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${min}&max_quantity=${max}&min_price=${minprice}&max_price=${maxprice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&page=${pageNumber}&items_per_page=${limitEnd}&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${type}&order_field=${field}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${min}&max_quantity=${max}&min_price=${minprice}&max_price=${maxprice}`,
       )
       .then((response) => {
         setData(response.data.data);
@@ -512,7 +513,7 @@ const TraderStatement = () => {
     setIsLoading(true);
     axiosGet
       .get(
-        `employee_get?access_token=${ACCESS_TOKEN}&items_per_page=10000&user_type_not=4&order_type=ASC&order_field=user_type`
+        `employee_get?access_token=${ACCESS_TOKEN}&items_per_page=10000&user_type_not=4&order_type=ASC&order_field=user_type`,
       )
       .then((response) => {
         setsearchFilterData(response.data.data);
@@ -527,12 +528,12 @@ const TraderStatement = () => {
     setIsLoading(true);
     axiosGet
       .get(
-        `finance/traderstatementfilter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`
+        `finance/traderstatementfilter/get?access_token=${ACCESS_TOKEN}&items_per_page=10000`,
       )
       .then((response) => {
         setFilterData(response.data.data);
         const FilteredData = items?.filter((res) =>
-          response.data.data.some((item) => item.label === res.label)
+          response.data.data.some((item) => item.label === res.label),
         );
         setSelectedOptions(FilteredData || []);
         setTimeout(() => {
@@ -555,7 +556,7 @@ const TraderStatement = () => {
     }
     axiosGet
       .get(
-        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&has_limit=0&page=${pageNumber}&items_per_page=10000&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`
+        `finance/traderstatement/get?access_token=${ACCESS_TOKEN}&has_limit=0&page=${pageNumber}&items_per_page=10000&search_input=&date_wise_selling=${createdStartDate}&to_date_wise_selling=${createdEndDate}&order_type=${orderType}&order_field=${orderField}&trader_id=${selectedTraderId}&payment_type=${cashTypeName}&min_quantity=${minQuantity}&max_quantity=${maxQuantity}&min_price=${minPrice}&max_price=${maxPrice}`,
       )
       .then((response) => {
         setPrintData(response.data.data);
@@ -970,7 +971,7 @@ const TraderStatement = () => {
                 <li key={key} {...otherProps}>
                   <Checkbox
                     checked={selectedOptions.some(
-                      (item) => item.label === option.label
+                      (item) => item.label === option.label,
                     )}
                   />
                   <ListItemText primary={option.label} />
@@ -1010,57 +1011,106 @@ const TraderStatement = () => {
     console.log("delete button clicked");
   };
 
-  const componentRef = useRef();
-
-  const handlePrint = () => {
-    const printContent = componentRef.current.innerHTML;
-    const iframe = document.createElement("iframe");
-
-    document.body.appendChild(iframe);
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write("<html><head><title></title>");
-    doc.write("</head><body>");
-    doc.write(printContent);
-    doc.write("</body></html>");
-    doc.close();
-
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    document.body.removeChild(iframe);
-  };
-
   const mulitpleRef = useRef();
 
   const handlePrintMulitple = () => {
     const printContent = mulitpleRef.current.innerHTML;
     const iframe = document.createElement("iframe");
-
+    iframe.style.display = "none";
     document.body.appendChild(iframe);
     const doc = iframe.contentWindow.document;
     doc.open();
 
     doc.write(`
-    <html>
-      <head>
-        <title></title>
-        <style>
-          @font-face {
-            font-family: "Nimbus Mono L Bold";
-            src: url("/Nimbus Mono L Bold.ttf") format("truetype");
-            font-weight: bold;
-            font-style: normal;
-          }
-          body, * {
-            font-family: "Nimbus Mono L Bold", monospace !important;
-          }
-        </style>
-      </head>
-      <body>
-        ${printContent}
-      </body>
-    </html>
-  `);
+       <html>
+         <head>
+           <title>Invoice</title>
+           <style>
+             @font-face {
+               font-family: "Nimbus Mono L Bold";
+               src: url("/Nimbus Mono L Bold.ttf") format("truetype");
+               font-weight: bold;
+               font-style: normal;
+             }
+             
+             @page {
+               size: auto;
+               margin: 0mm; 
+             }
+   
+             html, body {
+               margin: 0;
+               padding: 0;
+               height: 100%;
+             }
+   
+             body {
+               font-family: "Nimbus Mono L Bold", monospace !important;
+               -webkit-print-color-adjust: exact;
+             }
+   
+             .print-container {
+               display: flex;
+               flex-direction: column;
+               min-height: 100vh;
+               box-sizing: border-box;
+               padding: 10mm;
+             }
+   
+             /* The Wrapper fills the remaining space */
+             .items-wrapper {
+               flex: 1;
+               display: flex;
+               flex-direction: column;
+             }
+   
+             .items-table {
+               width: 100%;
+               border-collapse: collapse;
+               flex: 1; /* Forces table to grow to the bottom */
+               table-layout: fixed; /* Ensures column widths are respected */
+             }
+   
+             .items-table th, .items-table td {
+               border: 1px solid #000;
+               padding: 6px 4px;
+               word-wrap: break-word; /* Prevents text overflow */
+               overflow: hidden;
+             }
+   
+             .items-table thead th {
+               background-color: #f2f2f2 !important;
+               font-size: 11px;
+             }
+   
+             /* The magic row: it consumes all remaining vertical space */
+             .spacer-row td {
+               height: 100%;
+               border-bottom: 1px solid #000;
+             }
+   
+             /* Ensure table rows don't break awkwardly across pages */
+             tr {
+               page-break-inside: avoid;
+             }
+   
+             .footer-section {
+               page-break-inside: avoid;
+             }
+   
+             table {
+               width: 100%;
+               border-collapse: collapse;
+             }
+           </style>
+         </head>
+         <body>
+           <div class="print-container">
+             ${printContent}
+           </div>
+         </body>
+       </html>
+     `);
 
     doc.close();
 
@@ -1078,6 +1128,28 @@ const TraderStatement = () => {
   };
 
   const groupedPrintData = groupByTraderAndDate(printData);
+
+  const calculateTraderTotals = (traderStatements = []) => {
+    return traderStatements.reduce(
+      (acc, item) => {
+        acc.quantity += Number(item.quantity || 0);
+        acc.total_amount += Number(item.total_amount || 0);
+        acc.luggage += Number(item.luggage || 0);
+        return acc;
+      },
+      { quantity: 0, total_amount: 0, luggage: 0 },
+    );
+  };
+
+  const allTraderStatements = groupedPrintData.flatMap(
+    ([key, group]) => group[0]?.trader_statement || [],
+  );
+
+  // Calculate totals
+  const overallTotals = calculateTraderTotals(allTraderStatements);
+
+  // Final Grant Total
+  const grantTotalAmount = overallTotals.total_amount + overallTotals.luggage;
 
   const MenuComponent = (rowId) => {
     return (
@@ -1153,7 +1225,7 @@ const TraderStatement = () => {
             dateTitle={dateTitle}
             onCreatedDateChange={onCreatedDateChange}
             handlePrintMulitple={handlePrintMulitple}
-            handlePrint={handlePrint}
+            // handlePrint={handlePrint}
             minQuantity={minQuantityValue}
             maxQuantity={maxQuantityValue}
             minPrice={minPriceValue}
@@ -1175,251 +1247,6 @@ const TraderStatement = () => {
 
       <div style={{ display: "none" }}>
         <div
-          ref={componentRef}
-          style={{
-            fontFamily: "Arial, sans-serif",
-            textAlign: "center",
-            fontSize: "11px",
-            width: "5in", // Consider adjusting this to fit the print layout better
-          }}
-        >
-          <div style={{ fontWeight: "bold", textAlign: "center" }}>
-            S.D.M. Mahendran
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              fontWeight: "bold",
-              textAlign: "center",
-              marginTop: "10px",
-            }}
-          >
-            Sathyamangalam Erode
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            9442498222 -
-          </div>
-          <div
-            style={{
-              fontWeight: "semibold",
-              textAlign: "center",
-              marginTop: "12px",
-            }}
-          >
-            TRADER BILL RECEIPT
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>
-              Date:
-              <span style={{ fontWeight: "bold" }}>
-                {singleDataJson.date_wise_selling
-                  ? new Date(singleDataJson.date_wise_selling)
-                      .toLocaleDateString("en-GB") // This formats it to dd/mm/yyyy
-                      .replace(/\//g, "-") // Replace slashes with dashes to get dd-mm-yyyy
-                  : ""}
-              </span>
-            </div>
-            <div>
-              Time:{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {singleDataJson.time_wise_selling || ""}
-              </span>
-            </div>
-          </div>
-
-          <hr style={{ borderTop: "1px dashed #000", margin: "10px 0" }} />
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "5px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              Trader :{" "}
-              <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                {singleDataJson.trader_user_id || ""} -{" "}
-                {singleDataJson.trader_nick_name || ""}
-              </div>
-            </div>
-            {singleDataJson.trader_nick_name && (
-              <div style={{ display: "flex", alignItems: "center" }}>
-                Trader :{" "}
-                <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                  {singleDataJson.trader_nick_name || ""}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "5px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              Flower :{" "}
-              <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                {singleDataJson.flower_type_name || ""}
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              Type :{" "}
-              <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                {singleDataJson.payment_type || ""}
-              </div>
-            </div>
-          </div>
-
-          <hr style={{ borderTop: "1px dashed #000", margin: "10px 0" }} />
-          <div style={{ width: "100%", marginTop: "5px" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "3fr 3fr 3fr 1fr ",
-                fontWeight: "bold",
-                width: "100%",
-              }}
-            >
-              <div> S.No</div>
-              <div> Qty</div>
-              <div>Rate</div>
-              {/* <div>Disc</div> */}
-              <div>Amount</div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "3fr 3fr 3fr 1fr ",
-                marginTop: "5px",
-                width: "100%",
-              }}
-            >
-              <div>{singleDataJson.quantity || 0}</div>
-              <div>{singleDataJson.quantity || 0}</div>
-              <div>{singleDataJson.per_quantity || 0}</div>
-              {/* <div>{singleDataJson.discount || 0}</div> */}
-              <div>₹{singleDataJson.total_amount || 0}</div>
-            </div>
-          </div>
-          <hr style={{ borderTop: "1px dashed #000", margin: "10px 0" }} />
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              gap: 4,
-              alignItems: "flex-end",
-              marginTop: "5px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                fontWeight: "bold",
-              }}
-            >
-              Total :{" "}
-              <div style={{ fontWeight: "600", paddingLeft: "10px" }}>
-                ₹{Number(singleDataJson.total_amount || 0).toFixed(2)}
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                fontWeight: "bold",
-              }}
-            >
-              Commsion :{" "}
-              <div
-                style={{
-                  fontWeight: "600",
-                  paddingLeft: "10px",
-                  paddingRight: "15px",
-                }}
-              >
-                ₹{Number(singleDataJson.luggage || 0).toFixed(2)}
-              </div>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                fontWeight: "bold",
-                paddingBottom: "20px",
-              }}
-            >
-              Net Total :{" "}
-              <div
-                style={{
-                  fontWeight: "600",
-                  paddingLeft: "10px",
-                  paddingRight: "15px",
-                }}
-              >
-                ₹
-                {(
-                  Math.round(Number(singleDataJson.net_amount || 0) / 10) * 10
-                ).toFixed(2)}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontWeight: "bold",
-              marginTop: "5px",
-            }}
-          >
-            <div>Toll: ₹{singleDataJson.toll_amount || 0}</div>
-            <div>Total: ₹{singleDataJson.total_amount || 0}</div>
-          </div>
-          <hr style={{ borderTop: "1px dashed #000", margin: "10px 0" }} />
-
-          <div
-            style={{
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            Staff: {singleDataJson.createdby_firstname || ""}{" "}
-            {singleDataJson.createdby_lastname || ""}
-          </div>
-          <div
-            style={{
-              marginTop: "5px",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            உழவன் உழைத்தால் உலகம் வாழும் !!!
-          </div>
-        </div>
-      </div>
-      <div style={{ display: "none" }}>
-        <div
           ref={mulitpleRef}
           style={{
             // fontFamily: "Arial, sans-serif",
@@ -1429,187 +1256,333 @@ const TraderStatement = () => {
         >
           {groupedPrintData.map(([key, group], index) => (
             <div key={index} style={{ pageBreakInside: "avoid" }}>
-              {/* Trader and Date Header */}
-              <div
+              <section
                 style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  // marginTop: "1px",
-                  fontSize: "26px",
-                }}
-              >
-                S.D.M. Mahendran
-              </div>
-              <div
-                style={{
-                  marginTop: "5px",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  marginTop: "3px",
-                }}
-              >
-                Karatoor Road, Sathyamangalam, Erode
-              </div>
-
-              <div
-                style={{
-                  marginTop: "5px",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                }}
-              >
-                9442498222
-              </div>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  marginTop: "5px",
-                  fontSize: "18px",
-                }}
-              >
-                TRADER STATEMENT RECEIPT
-              </div>
-              <div
-                style={{
-                  borderTop: "1px dashed #000",
-                  margin: "6px 0",
-                  height: "0",
+                  border: "1px solid #000",
+                  borderBottom: "none",
                   width: "100%",
-                  printColorAdjust: "exact",
-                  WebkitPrintColorAdjust: "exact",
-                }}
-              />
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "2px",
+                  margin: 0,
+                  padding: "6px 0px",
+                  boxSizing: "border-box", // Ensures padding doesn't push the border out
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  alignItems: "center",
                 }}
               >
-                <div>
-                  Trader :{" "}
-                  <span style={{ fontWeight: "600" }}>
-                    <span style={{ fontWeight: "600" }}>
-                      {(group[0]?.user_id || "").slice(-4)} -{" "}
-                      {group[0]?.trader_name || ""}
-                    </span>
-                  </span>
-                </div>
-                <div style={{ paddingRight: "10px" }}>
-                  Mobile:
-                  <span style={{ fontWeight: "bold" }}>
-                    {group[0]?.mobile_number || "--"}
-                  </span>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  borderTop: "1px dashed #000",
-                  margin: "6px 0",
-                  height: "0",
-                  width: "100%",
-                  printColorAdjust: "exact",
-                  WebkitPrintColorAdjust: "exact",
-                }}
-              />
-
-              <div style={{ width: "100%", marginTop: "1px" }}>
+                {/* Left Section: Logo */}
                 <div
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1.5fr 1fr 1fr 1fr ",
-                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginLeft: "20px",
+                    height: "100px",
+                    weight: "100px",
                   }}
                 >
-                  <div>S.No</div>
-                  <div>Date</div>
-                  <div>Qty</div>
-                  <div>Rate</div>
-                  <div>Total</div>
+                  <Logo />
                 </div>
 
-                {/* Data Rows - Always display 7 rows */}
-
-                 {group[0]?.trader_statement?.map((item, idx) => (
-                  <div
-                    key={idx}
+                {/* Middle Section: Company Information */}
+                <div style={{ textAlign: "center" }}>
+                  <h1
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1.5fr 1fr 1fr 1fr",
-                      marginTop: "1px",
-                      width: "100%",
-                      // minHeight: "24px",
-                      fontWeight: "bold",
+                      margin: "0 0 4px 0",
+                      fontSize: "20px",
+                      fontWeight: "700",
+                      letterSpacing: "1px",
                     }}
                   >
-                    <div>{idx + 1}</div>
-                    <div>
-                      {item?.date_wise_selling
-                        ? new Date(item.date_wise_selling)
-                            .toLocaleDateString("en-GB") // dd/mm/yyyy
-                            .replace(/\//g, "-") // dd-mm-yyyy
-                        : ""}
-                    </div>
-                    <div>{Number(item?.quantity || 0).toFixed(2)}</div>
+                    S.D.M MAHENDRAN
+                  </h1>
 
-                    <div> {Number(item.per_quantity).toFixed(2)}</div>
-                    <div>{Number(item?.sub_amount || 0).toFixed(2)}</div>
+                  <p style={{ margin: "1px 0", fontSize: "13px" }}>
+                    Karatoor Road, Sathyamangalam
+                  </p>
+                  <p style={{ margin: "1px 0", fontSize: "13px" }}>
+                    Erode - 638401
+                  </p>
+
+                  <div style={{ marginTop: "2px", fontSize: "13px" }}>
+                    <p style={{ margin: "0" }}>Ph.No: 94424 98222</p>
+                    {/* Aligned below the first number as per sketch */}
+                    <p style={{ margin: "0", paddingLeft: "42px" }}>
+                      80728 87930
+                    </p>
                   </div>
-                ))}
-              </div>
-              <div
-                style={{
-                  borderTop: "1px dashed #000",
-                  margin: "10px 0",
-                  height: "0",
-                  width: "100%",
-                  printColorAdjust: "exact",
-                  WebkitPrintColorAdjust: "exact",
-                }}
-              />
 
+                  <p
+                    style={{
+                      marginTop: "8px",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    GST NO: 33BDXPC4945B1ZM
+                  </p>
+                </div>
+              </section>
+
+              <table
+                style={{
+                  border: "1px solid #000",
+                  borderBottom: "none",
+                  width: "100%",
+                  borderCollapse: "collapse",
+                }}
+              >
+                <colgroup>
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "90%" }} />
+                </colgroup>
+                <tbody>
+                  <tr
+                    style={{
+                      border: "1px solid #000",
+                    }}
+                  >
+                    <td
+                      style={{
+                        padding: "3px",
+                        fontWeight: "normal",
+                        textAlign: "left",
+                      }}
+                    >
+                      No : 19065
+                    </td>
+
+                    <td
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      TRADER BILL
+                    </td>
+
+                    <td
+                      style={{
+                        fontWeight: "normal",
+                        textAlign: "right",
+                      }}
+                    >
+                      BILL DATE : 10-02-2026
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={3} style={{ padding: "4px 6px" }}>
+                      {/* First Line */}
+                      <div>
+                        <strong>To:</strong>{" "}
+                        {group[0]?.trader_name || "Not found"}
+                      </div>
+
+                      {/* Second Line - Right aligned */}
+                      <div style={{ textAlign: "right" }}>
+                        PH No : {group[0]?.mobile_number || "Not found"}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Items Table */}
+              <div className="items-wrapper" style={{ borderTop: "none" }}>
+                <table className="items-table" style={{ borderTop: "none" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "15%" }}>DATE</th>
+                      <th style={{ width: "35%" }}>PARTICULARS</th>
+                      <th style={{ width: "10%" }}>QTY</th>
+                      <th style={{ width: "12%" }}>RATE</th>
+                      <th style={{ width: "15%" }}>AMT</th>
+                      <th style={{ width: "15%" }}>LUGGAGE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group[0]?.trader_statement?.map((item, idx) => (
+                      <tr
+                        key={idx}
+                        style={{ fontSize: "12px", textAlign: "center" }}
+                      >
+                        <td>{item.date_wise_selling}</td>
+                        <td style={{ textAlign: "left", fontWeight: "normal" }}>
+                          {item?.flower_type || "Not found"}
+                        </td>
+                        <td>{item.quantity}</td>
+                        <td>{item.per_quantity}</td>
+                        <td>{item.total_amount}</td>
+                        <td>{item.luggage}</td>
+                      </tr>
+                    ))}
+
+                    {/* IMPORTANT: The Spacer Row */}
+                    {/* Add this row after your map() or data row. It pushes the footer down. */}
+                    <tr className="spacer-row">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <table
+                style={{
+                  width: "100%",
+                  border: "1px solid #000",
+                  borderTop: "none",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                  fontSize: "13px",
+                }}
+              >
+                <colgroup>
+                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "35%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "15%" }} />
+                </colgroup>
+                {groupedPrintData.map(([key, group], index) => {
+                  const traderStatements = group[0]?.trader_statement || [];
+
+                  const totals = calculateTraderTotals(traderStatements);
+
+                  return (
+                    <React.Fragment key={index}>
+                      {/* Totals Row */}
+                      <tr>
+                        <td></td>
+                        <td style={{ padding: "6px", fontWeight: "normal" }}>
+                          TOTAL
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px",
+                            textAlign: "center",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {totals.quantity}
+                        </td>
+                        <td></td>
+                        <td
+                          style={{
+                            padding: "6px",
+                            textAlign: "center",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {totals.total_amount}
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px",
+                            textAlign: "center",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {totals.luggage}
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                })}
+              </table>
+              <table
+                style={{
+                  width: "100%",
+                  border: "1px solid #000",
+                  borderTop: "none",
+                  borderCollapse: "collapse",
+                  tableLayout: "auto",
+                  fontSize: "13px",
+                }}
+              >
+                <tbody>
+                  {/* TERMS + GRAND TOTAL */}
+                  <tr>
+                    <td
+                      colSpan={3}
+                      style={{
+                        padding: "6px",
+                        verticalAlign: "top",
+                        borderRight: "1px solid #000",
+                        borderBottom: "1px solid #000",
+                      }}
+                    >
+                      1. GOOD ONCE SOLD CANNOT BE TAKEN BACK.
+                      <br />
+                      <span style={{ whiteSpace: "nowrap" }}>
+                        2. SUBJECT TO MARKET RISK.
+                      </span>
+                    </td>
+
+                    <td
+                      style={{
+                        padding: "6px",
+                        verticalAlign: "middle",
+                        fontWeight: "normal",
+                        borderBottom: "1px solid #000",
+                        textAlign: "right",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      GRANT TOTAL: {grantTotalAmount}
+                    </td>
+                  </tr>
+
+                  {/* AMOUNT IN WORDS */}
+                  <tr>
+                    <td
+                      colSpan={4}
+                      style={{ padding: "6px", borderBottom: "1px solid #000" }}
+                    >
+                      <strong>Amount in Words :</strong> Rs: Three Thousand Four
+                      Hundred And Fifty Only.
+                    </td>
+                  </tr>
+
+                  {/* SIGNATURE ROW */}
+                  <tr>
+                    <td
+                      colSpan={2}
+                      style={{
+                        padding: "30px 6px 6px 6px",
+                        verticalAlign: "bottom",
+                      }}
+                    >
+                      Customer Signature
+                    </td>
+
+                    <td
+                      colSpan={2}
+                      style={{
+                        padding: "30px 6px 6px 6px",
+                        textAlign: "right",
+                        verticalAlign: "bottom",
+                      }}
+                    >
+                      Authorised Signatory
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {/* Tamil Note */}
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  alignItems: "flex-end",
+                  textAlign: "center",
+                  fontSize: "10px",
                   marginTop: "5px",
                 }}
               >
-                {[
-                  { label: "Total Amount:", value: group[0]?.sub_amount },
-                  { label: "Luggage:", value: group[0]?.luggage },
-                  {
-                    label: "Net Total:",
-                    value:
-                      Math.round(
-                        ((Number(group[0]?.sub_amount) || 0) -
-                          (Number(group[0]?.luggage) || 0)) /
-                          10
-                      ) * 10,
-                  },
-                ].map((row, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontWeight: "bold",
-                      width: "100%",
-                      maxWidth: "230px", // ✅ consistent width for all rows
-                    }}
-                  >
-                    <span style={{ whiteSpace: "nowrap" }}>{row.label}</span>
-                    <span style={{ fontWeight: "600", whiteSpace: "nowrap" }}>
-                      ₹{Number(row.value || 0).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                ஒரு விவசாயியின் உழைப்பே ஆயிரம் மலர்களின் வாசனை.
               </div>
             </div>
           ))}
