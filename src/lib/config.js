@@ -1,7 +1,7 @@
 // export const API_ENDPOINT = "https://api.sdmflowers.in/";
 // export const API_ENDPOINT = "https://sdmapi.smsvts.in";
 // export const API_ENDPOINT = "http://192.168.0.111:8003/";
-export const API_ENDPOINT = "http://192.168.0.111:8004";
+export const API_ENDPOINT = "http://192.168.0.114:8002/";
 export const IMG_ENDPOINT = "https://api.sdmflowers.in/";
 
 export const API_TOKEN =
